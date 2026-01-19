@@ -4,6 +4,7 @@ import Hero from "./Hero";
 import Stats from "./Stats";
 import FeaturedJobs from "./FeaturedJobs";
 import CTA from "./CTA";
+import SimpleCTA from "./SimpleCTA";
 
 export default function LandingPage() {
   return (
@@ -12,6 +13,7 @@ export default function LandingPage() {
       <Stats />
       <FeaturedJobs />
       <CTA />
+      <SimpleCTA />
     </div>
   );
 }
