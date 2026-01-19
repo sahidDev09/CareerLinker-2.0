@@ -53,7 +53,7 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <FadeIn direction="up">
               <div className="space-y-8">
-                <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-sm font-bold border border-indigo-100 dark:border-indigo-800">
+                <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-indigo-50 text-indigo-600 text-sm font-bold border border-indigo-100">
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
@@ -65,20 +65,20 @@ export default function Home() {
                   Find your <span className="gradient-text">dream job</span> with CareerLinker
                 </h1>
                 
-                <p className="text-xl text-slate-500 dark:text-slate-400 max-w-xl leading-relaxed">
+                <p className="text-xl text-slate-500 max-w-xl leading-relaxed">
                   The most advanced job portal for professionals. Discover opportunities from top startups to Fortune 500 companies.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link 
                     href="/jobs" 
-                    className="flex justify-center items-center px-8 py-4 gradient-bg text-white rounded-2xl font-bold shadow-xl shadow-indigo-200 dark:shadow-none hover:scale-105 transition-transform"
+                    className="flex justify-center items-center px-8 py-4 gradient-bg text-white rounded-2xl font-bold shadow-xl shadow-indigo-200 hover:scale-105 transition-transform"
                   >
                     Browse All Jobs
                     <ArrowRight size={20} className="ml-2" />
                   </Link>
-                  <button className="flex justify-center items-center px-8 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                    <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mr-3">
+                  <button className="flex justify-center items-center px-8 py-4 bg-white border border-slate-200 rounded-2xl font-bold hover:bg-slate-50 transition-colors">
+                    <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
                       <Play size={14} className="text-indigo-600 fill-indigo-600" />
                     </div>
                     How It Works
@@ -119,12 +119,12 @@ export default function Home() {
         <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map((stat, i) => (
             <ScaleIn key={stat.label} delay={i * 0.1}>
-              <div className="p-8 rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-center space-y-2 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 transition-colors group">
-                <div className="w-12 h-12 mx-auto rounded-2xl bg-white dark:bg-slate-800 flex items-center justify-center text-indigo-600 shadow-sm mb-4 group-hover:scale-110 transition-transform">
+              <div className="p-8 rounded-3xl bg-slate-50 border border-slate-100 text-center space-y-2 hover:bg-indigo-50/50 transition-colors group">
+                <div className="w-12 h-12 mx-auto rounded-2xl bg-white flex items-center justify-center text-indigo-600 shadow-sm mb-4 group-hover:scale-110 transition-transform">
                   <stat.icon size={24} />
                 </div>
-                <div className="text-3xl font-extrabold text-slate-900 dark:text-white">{stat.value}</div>
-                <div className="text-sm font-medium text-slate-500 dark:text-slate-400">{stat.label}</div>
+                <div className="text-3xl font-extrabold text-slate-900">{stat.value}</div>
+                <div className="text-sm font-medium text-slate-500">{stat.label}</div>
               </div>
             </ScaleIn>
           ))}
@@ -132,13 +132,13 @@ export default function Home() {
       </section>
 
       {/* Featured Jobs Section */}
-      <section className="container mx-auto px-4 md:px-6 bg-slate-50 dark:bg-slate-900/50 rounded-[3rem] py-20 border border-slate-200/50 dark:border-slate-800/50">
+      <section className="container mx-auto px-4 md:px-6 bg-slate-50 rounded-[3rem] py-20 border border-slate-200/50">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div className="space-y-4">
             <h2 className="text-4xl font-extrabold tracking-tight">
               Featured <span className="text-indigo-600">Opportunities</span>
             </h2>
-            <p className="text-slate-500 dark:text-slate-400 max-w-md">
+            <p className="text-slate-500 max-w-md">
               Handpicked jobs that match your skills and experience. Apply today and start your journey.
             </p>
           </div>
