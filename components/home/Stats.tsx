@@ -12,7 +12,7 @@ const stats = [
 
 export default function Stats() {
   return (
-    <section className="container mx-auto px-4 md:px-6">
+    <section className="container mx-auto">
       <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-8">
         {stats.map((stat, i) => (
           <ScaleIn key={stat.label} delay={i * 0.1}>
