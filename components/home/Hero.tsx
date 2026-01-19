@@ -164,12 +164,12 @@ export default function Hero() {
       description: "Senior Account Executive to manage customer health and building strong relationships.",
       logo: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg",
       color: "bg-[#E0F2FE] text-[#0284C7]",
-      avatars: ["https://i.pravatar.cc/100?u=13", "https://i.pravatar.cc/100?u=14", "https://i.pravatar.cc/100?u=15"]
+      avatars: ["https://i.pravatar.cc/13", "https://i.pravatar.cc/14", "https://i.pravatar.cc/15"]
     },
   ];
 
   return (
-    <section className="relative min-h-[950px] lg:min-h-[1050px] w-full overflow-hidden bg-gradient-to-b from-[#EBF3FF] via-[#F8FAFF] to-white pt-24 pb-32">
+    <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#EBF3FF] via-[#F8FAFF] to-white pt-10 pb-20">
       {/* Decorative Background Elements */}
       <Cloud top="2%" left="2%" scale={1.3} opacity={0.7} />
       <Cloud top="12%" left="88%" scale={0.9} opacity={0.5} />
@@ -189,10 +189,10 @@ export default function Hero() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, ease: "easeOut" }}
-          className="max-w-5xl mx-auto mb-20"
+          className="max-w-5xl mx-auto mb-8"
         >
-          <h1 className="text-5xl md:text-[85px] font-black tracking-[-0.03em] text-[#1A1A1A] leading-[1.1] mb-8">
-            Smart Hiring{" "}
+          <h1 className="text-5xl md:text-7xl font-black tracking-[-0.03em] text-[#1A1A1A] leading-[1.1] mb-2">
+            Smart Career{" "}
             <span className="relative inline-block mx-2 translate-y-3 md:translate-y-6">
               <motion.span 
                 whileHover={{ rotate: 12, scale: 1.1 }}
@@ -223,23 +223,13 @@ export default function Hero() {
             Growing Needs
           </h1>
 
-          <p className="text-[#64748B] text-xl md:text-2xl font-bold mb-14 max-w-2xl mx-auto leading-relaxed opacity-80">
+          <p className="text-[#64748B] text-xl md:text-2xl max-w-2xl mx-auto leading-relaxed opacity-80">
             The modern solution to optimize your hiring process.
           </p>
-
-          <Link
-            href="/jobs"
-            className="group relative inline-flex items-center gap-4 bg-[#FF89BB] hover:bg-[#FF75AF] text-white px-10 py-5 rounded-3xl font-black text-xl shadow-[0_20px_40px_-10px_rgba(255,137,187,0.4)] transition-all hover:scale-105 active:scale-95 overflow-hidden"
-          >
-            <span className="relative z-10">Let&apos;s Join Now</span>
-            <div className="relative z-10 bg-white/20 rounded-xl p-1.5 group-hover:translate-x-1.5 transition-transform duration-300">
-              <ArrowRight size={24} strokeWidth={3} />
-            </div>
-          </Link>
         </motion.div>
 
         {/* Job Cards Section */}
-        <div className="relative mt-32 flex justify-center items-end px-4 overflow-visible">
+        <div className="relative mt-12 flex justify-center items-end px-4 overflow-visible py-10">
           <div className="flex -space-x-20 md:-space-x-32 items-end max-w-[1400px]">
             {jobs.map((job, index) => (
               <motion.div
