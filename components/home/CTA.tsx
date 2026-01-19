@@ -41,8 +41,8 @@ const resourceSteps = [
 
 export default function CTA() {
   return (
-    <section className="container mx-auto px-4 md:px-6 py-24 bg-white">
-      <div className="text-center mb-20">
+    <section className="container mx-auto bg-white">
+      <div className="text-center mb-10">
         <FadeIn direction="up">
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 leading-tight">
             <span className="text-[#ff4d94]">How to Make</span> the Most of <br /> Our Career Platform
@@ -50,10 +50,10 @@ export default function CTA() {
         </FadeIn>
       </div>
 
-      <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+      <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-8 mx-auto">
         {resourceSteps.map((step, i) => (
           <FadeIn key={step.title} direction="up" delay={i * 0.1}>
-            <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] hover:shadow-[0_30px_60px_-12px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col items-start gap-6 group">
+            <div className="bg-zinc-100 border-pink-200/20 border p-10 rounded-[2.5rem] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] hover:shadow-[0_30px_60px_-12px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col items-start gap-6 group">
               <div className={cn(
                 "w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-transform group-hover:scale-110 duration-300",
                 step.iconBg,

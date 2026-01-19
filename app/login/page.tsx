@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Briefcase, ArrowRight, Github } from "lucide-react";
+import Image from "next/image";
+import { Briefcase, Github } from "lucide-react";
 import { FadeIn } from "@/components/shared/Motion";
 
 export default function LoginPage() {
@@ -53,7 +54,7 @@ export default function LoginPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <button type="button" className="flex items-center justify-center px-4 py-3 bg-slate-50 dark:bg-slate-800 rounded-2xl font-bold text-sm hover:bg-slate-100 transition-colors">
-                <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4 mr-2" />
+                <Image src="https://www.google.com/favicon.ico" alt="Google" width={16} height={16} className="mr-2" />
                 Google
               </button>
               <button type="button" className="flex items-center justify-center px-4 py-3 bg-slate-50 dark:bg-slate-800 rounded-2xl font-bold text-sm hover:bg-slate-100 transition-colors">
@@ -64,7 +65,7 @@ export default function LoginPage() {
           </form>
 
           <p className="text-center text-slate-500 dark:text-slate-400 mt-10 text-sm">
-            Don't have an account? <Link href="/signup" className="text-indigo-600 font-bold hover:underline">Create an account</Link>
+            Don&apos;t have an account? <Link href="/signup" className="text-indigo-600 font-bold hover:underline">Create an account</Link>
           </p>
         </div>
       </FadeIn>

@@ -5,8 +5,8 @@ import { FadeIn } from "@/components/shared/Motion";
 
 export default function SimpleCTA() {
   return (
-    <section className="container mx-auto px-4 py-24 mb-10">
-      <div className="max-w-5xl mx-auto">
+    <section className="container mx-auto">
+      <div className="mx-auto">
         <FadeIn direction="up">
           <div className="relative overflow-hidden bg-white rounded-[3.5rem] p-8 md:p-16 border border-slate-100 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.06)] flex flex-col md:flex-row items-center justify-between gap-12 group transition-all duration-500 hover:shadow-[0_48px_80px_-20px_rgba(0,0,0,0.08)]">
             
@@ -30,7 +30,7 @@ export default function SimpleCTA() {
             </div>
 
             <div className="relative z-10 flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-              <button className="px-10 py-5 bg-[#1A1A1A] text-white rounded-[1.5rem] font-black text-lg hover:bg-black transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-3 group">
+              <button className="px-10 py-5 bg-[#ff4d94] text-white rounded-[1.5rem] font-black text-lg hover:bg-black transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-3 group">
                 Sign Up Now
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>

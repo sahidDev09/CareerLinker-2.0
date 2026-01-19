@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { MapPin, Clock, DollarSign, Briefcase, Bookmark, ExternalLink, MoreHorizontal, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -77,7 +78,7 @@ export default function JobCard({
           <div className="flex -space-x-2">
             {avatars.slice(0, 3).map((avatar, i) => (
               <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-slate-100 overflow-hidden relative shadow-sm">
-                <img src={avatar} alt="avatar" className="w-full h-full object-cover" />
+                <Image src={avatar} alt="avatar" fill className="object-cover" />
               </div>
             ))}
             {appliedCount > 3 && (
@@ -94,9 +95,9 @@ export default function JobCard({
         {/* Footer */}
         <div className="flex items-center justify-between pt-6 border-t border-slate-200/50">
           <div className="flex items-center space-x-3">
-            <div className="w-11 h-11 rounded-full bg-white flex items-center justify-center overflow-hidden border border-slate-100 shadow-sm">
+            <div className="w-11 h-11 rounded-full bg-white flex items-center justify-center overflow-hidden border border-slate-100 shadow-sm relative">
               {logoUrl ? (
-                <img src={logoUrl} alt={company} className="w-full h-full object-contain p-2" />
+                <Image src={logoUrl} alt={company} fill className="object-contain p-2" />
               ) : (
                 <Briefcase size={22} className="text-slate-400" />
               )}
@@ -127,9 +128,9 @@ export default function JobCard({
     >
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center space-x-4">
-          <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 overflow-hidden border border-slate-200/50">
+          <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 overflow-hidden border border-slate-200/50 relative">
             {logoUrl ? (
-              <img src={logoUrl} alt={company} className="w-full h-full object-contain p-2" />
+              <Image src={logoUrl} alt={company} fill className="object-contain p-2" />
             ) : (
               <Briefcase size={24} />
             )}

@@ -15,6 +15,18 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "i.pravatar.cc",
       },
+      {
+        protocol: "https",
+        hostname: "www.google.com",
+      },
+      {
+        protocol: "https",
+        hostname: "admin.mailchimp.com",
+      },
+      {
+        protocol: "https",
+        hostname: "www.finder.com.au",
+      },
     ],
   },
 };
