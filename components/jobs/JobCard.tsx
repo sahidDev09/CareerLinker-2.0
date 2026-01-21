@@ -44,13 +44,13 @@ export default function JobCard({
         whileHover={{ y: -5 }}
         transition={{ duration: 0.2 }}
         className={cn(
-          "relative p-8 rounded-[2rem] flex flex-col h-full transition-all duration-300 border border-transparent hover:border-slate-200 shadow-sm",
-          bgColor || "bg-white"
+          "relative p-8 rounded-[2rem] flex flex-col h-full transition-all duration-300 border border-white/5 hover:border-white/20 shadow-xl",
+          bgColor ? "bg-white/10" : "bg-white/5"
         )}
       >
         {/* Top Actions */}
         <div className="flex items-center justify-between mb-5">
-          <button className="text-slate-900 hover:text-pink-500 transition-colors">
+          <button className="text-white/70 hover:text-pink-500 transition-colors">
             <Bookmark size={24} strokeWidth={1.5} />
           </button>
           <div className={cn(dotColor || "text-[#ff4d94]")}>
@@ -60,16 +60,16 @@ export default function JobCard({
 
         {/* Title */}
         <div className="mb-8 flex-grow">
-          <h3 className="text-2xl font-bold text-slate-900 leading-[1.1] tracking-tight">
+          <h3 className="text-2xl font-bold text-white leading-[1.1] tracking-tight">
             {title}
           </h3>
         </div>
 
         {/* Salary and Arrow */}
         <div className="flex items-center justify-between mb-6">
-          <span className="text-slate-500 text-lg font-medium">{salary}</span>
+          <span className="text-slate-400 text-lg font-medium">{salary}</span>
           <div className="hover:translate-x-1 transition-transform cursor-pointer">
-            <ArrowRight size={22} className="text-slate-900" />
+            <ArrowRight size={22} className="text-white" />
           </div>
         </div>
 
@@ -77,25 +77,25 @@ export default function JobCard({
         <div className="flex items-center space-x-3 mb-8">
           <div className="flex -space-x-2">
             {avatars.slice(0, 3).map((avatar, i) => (
-              <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-slate-100 overflow-hidden relative shadow-sm">
+              <div key={i} className="w-8 h-8 rounded-full border-2 border-black bg-slate-800 overflow-hidden relative shadow-sm">
                 <Image src={avatar} alt="avatar" fill className="object-cover" />
               </div>
             ))}
             {appliedCount > 3 && (
-              <div className="w-8 h-8 rounded-full border-2 border-white bg-slate-50 flex items-center justify-center text-[10px] font-bold text-slate-500 shadow-sm">
+              <div className="w-8 h-8 rounded-full border-2 border-black bg-slate-900 flex items-center justify-center text-[10px] font-bold text-slate-400 shadow-sm">
                 {appliedCount}+
               </div>
             )}
           </div>
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
             {appliedCount > 0 ? `${appliedCount}+ Applied` : 'Be the first to apply'}
           </span>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-6 border-t border-slate-200/50">
+        <div className="flex items-center justify-between pt-6 border-t border-white/10">
           <div className="flex items-center space-x-3">
-            <div className="w-11 h-11 rounded-full bg-white flex items-center justify-center overflow-hidden border border-slate-100 shadow-sm relative">
+            <div className="w-11 h-11 rounded-full bg-white flex items-center justify-center overflow-hidden border border-white/10 shadow-sm relative">
               {logoUrl ? (
                 <Image src={logoUrl} alt={company} fill className="object-contain p-2" />
               ) : (
@@ -103,11 +103,11 @@ export default function JobCard({
               )}
             </div>
             <div className="flex flex-col">
-              <span className="text-[0.95rem] font-bold text-slate-800 leading-none mb-1.5">{company}</span>
-              <span className="text-[0.8rem] text-slate-400 font-medium">{postedAt}</span>
+              <span className="text-[0.95rem] font-bold text-white leading-none mb-1.5">{company}</span>
+              <span className="text-[0.8rem] text-slate-500 font-medium">{postedAt}</span>
             </div>
           </div>
-          <button className="bg-[#ff4d94] text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-[#ff3385] transition-all hover:shadow-lg hover:shadow-pink-200">
+          <button className="bg-[#ff4d94] text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-[#ff3385] transition-all hover:shadow-lg hover:shadow-pink-500/20">
             View
           </button>
         </div>
@@ -122,13 +122,13 @@ export default function JobCard({
       className={cn(
         "group p-6 rounded-2xl border transition-all duration-300",
         isFeatured 
-          ? "bg-indigo-50/50 border-indigo-200" 
-          : "bg-white border-slate-200 hover:border-indigo-300 shadow-sm hover:shadow-md"
+          ? "bg-indigo-500/10 border-indigo-500/20 shadow-indigo-500/5" 
+          : "bg-white/5 border-white/10 hover:border-indigo-500/30 shadow-sm hover:shadow-xl"
       )}
     >
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center space-x-4">
-          <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 overflow-hidden border border-slate-200/50 relative">
+          <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-slate-400 overflow-hidden border border-white/10 relative">
             {logoUrl ? (
               <Image src={logoUrl} alt={company} fill className="object-contain p-2" />
             ) : (
@@ -136,32 +136,32 @@ export default function JobCard({
             )}
           </div>
           <div>
-            <h3 className="font-bold text-lg text-slate-900 group-hover:text-indigo-600 transition-colors">
+            <h3 className="font-bold text-lg text-white group-hover:text-indigo-400 transition-colors">
               {title}
             </h3>
             <p className="text-slate-500 text-sm font-medium">{company}</p>
           </div>
         </div>
-        <button className="text-slate-400 hover:text-indigo-600 transition-colors">
+        <button className="text-slate-500 hover:text-indigo-400 transition-colors">
           <Bookmark size={20} />
         </button>
       </div>
 
       <div className="flex flex-wrap gap-4 mb-6">
         {location && (
-          <div className="flex items-center text-sm text-slate-500">
-            <MapPin size={16} className="mr-1.5 text-slate-400" />
+          <div className="flex items-center text-sm text-slate-400">
+            <MapPin size={16} className="mr-1.5 text-slate-500" />
             {location}
           </div>
         )}
         {type && (
-          <div className="flex items-center text-sm text-slate-500">
-            <Clock size={16} className="mr-1.5 text-slate-400" />
+          <div className="flex items-center text-sm text-slate-400">
+            <Clock size={16} className="mr-1.5 text-slate-500" />
             {type}
           </div>
         )}
-        <div className="flex items-center text-sm text-slate-500">
-          <DollarSign size={16} className="mr-1.5 text-slate-400" />
+        <div className="flex items-center text-sm text-slate-400">
+          <DollarSign size={16} className="mr-1.5 text-slate-500" />
           {salary}
         </div>
       </div>
@@ -170,16 +170,16 @@ export default function JobCard({
         {tags.map((tag) => (
           <span 
             key={tag} 
-            className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-medium"
+            className="px-3 py-1 bg-white/5 text-slate-400 rounded-full text-xs font-medium border border-white/5"
           >
             {tag}
           </span>
         ))}
       </div>
 
-      <div className="flex items-center justify-between pt-6 border-t border-slate-100">
-        <span className="text-xs text-slate-400 font-medium">Posted {postedAt}</span>
-        <button className="flex items-center text-sm font-bold text-indigo-600 group-hover:underline">
+      <div className="flex items-center justify-between pt-6 border-t border-white/5">
+        <span className="text-xs text-slate-500 font-medium">Posted {postedAt}</span>
+        <button className="flex items-center text-sm font-bold text-indigo-400 group-hover:underline">
           View Details
           <ExternalLink size={14} className="ml-1.5" />
         </button>

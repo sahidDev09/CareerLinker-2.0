@@ -22,6 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${outfit.variable} font-sans antialiased`}>
+        <div className="bg-gradient-overlay" />
         <div className="grid-background" />
         <Navbar />
         <main className="min-h-screen pt-20">

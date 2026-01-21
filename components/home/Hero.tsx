@@ -190,12 +190,12 @@ export default function Hero() {
           transition={{ duration: 1, ease: "easeOut" }}
           className="max-w-5xl mx-auto mb-8"
         >
-          <h1 className="text-5xl md:text-7xl font-black tracking-[-0.03em] text-[#1A1A1A] leading-[1.1] mb-2">
+          <h1 className="text-5xl md:text-7xl font-black tracking-[-0.03em] text-white leading-[1.1] mb-2">
             Smart Career{" "}
             <span className="relative inline-block mx-2 translate-y-3 md:translate-y-6">
               <motion.span 
                 whileHover={{ rotate: 12, scale: 1.1 }}
-                className="bg-[#FFE4F2] p-2 md:p-4 rounded-[2rem] md:rounded-[2.5rem] inline-flex items-center justify-center shadow-lg relative w-14 h-14 md:w-24 md:h-24 cursor-pointer"
+                className="bg-indigo-500/20 p-2 md:p-4 rounded-[2rem] md:rounded-[2.5rem] inline-flex items-center justify-center shadow-lg relative w-14 h-14 md:w-24 md:h-24 cursor-pointer"
               >
                 <Image 
                   src="https://em-content.zobj.net/source/apple/354/smiling-cat-with-heart-eyes_1f63b.png" 
@@ -212,7 +212,7 @@ export default function Hero() {
                   <motion.div 
                     key={i} 
                     whileHover={{ y: -5, zIndex: 10 }}
-                    className="w-10 h-10 md:w-16 md:h-16 rounded-full border-[3px] border-white bg-slate-200 overflow-hidden relative shadow-md"
+                    className="w-10 h-10 md:w-16 md:h-16 rounded-full border-[3px] border-black bg-slate-800 overflow-hidden relative shadow-md"
                   >
                     <Image src={`https://i.pravatar.cc/100?u=${u}`} alt="user" fill className="object-cover" />
                   </motion.div>
@@ -222,7 +222,7 @@ export default function Hero() {
             Growing Needs
           </h1>
 
-          <p className="text-[#64748B] text-xl md:text-2xl max-w-2xl mx-auto leading-relaxed opacity-80">
+          <p className="text-slate-400 text-xl md:text-2xl max-w-2xl mx-auto leading-relaxed">
             The modern solution to optimize your hiring process.
           </p>
         </motion.div>
