@@ -1,8 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight, Github, Linkedin, Facebook, Dribbble, Sun, Chrome as Zoom, LucideIcon } from "lucide-react";
+import { Github, Linkedin, Facebook, Dribbble, Sun, Chrome as Zoom, LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface JobCardProps {
@@ -169,7 +168,7 @@ export default function Hero() {
   ];
 
   return (
-    <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#EBF3FF] via-[#F8FAFF] to-white pt-10 pb-20">
+    <section className="relative w-full overflow-hidden pt-10 pb-20">
       {/* Decorative Background Elements */}
       <Cloud top="2%" left="2%" scale={1.3} opacity={0.7} />
       <Cloud top="12%" left="88%" scale={0.9} opacity={0.5} />

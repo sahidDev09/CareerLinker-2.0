@@ -41,7 +41,7 @@ const resourceSteps = [
 
 export default function CTA() {
   return (
-    <section className="container mx-auto bg-white">
+    <section className="container mx-auto">
       <div className="text-center mb-10">
         <FadeIn direction="up">
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 leading-tight">
