@@ -28,7 +28,7 @@ const JobCard = ({
   return (
     <motion.div
       whileHover={{ y: -15, scale: isActive ? 1.15 : 1.1, zIndex: isActive ? 100 : 60 }}
-      className={`relative w-[280px] md:w-[300px] p-8 rounded-[3rem] shadow-2xl transition-all duration-500 ${color} ${isActive ? 'z-50 scale-110 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] border-4 border-white' : 'z-10 opacity-95'}`}
+      className={`relative w-[280px] md:w-[300px] p-8 rounded-[3rem] shadow-2xl transition-all duration-500 ${color} ${isActive ? 'z-50 scale-110 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] ' : 'z-10 opacity-95'}`}
       style={{
         boxShadow: isActive ? '0 30px 60px -15px rgba(0,0,0,0.15)' : '0 10px 30px -10px rgba(0,0,0,0.05)'
       }}
