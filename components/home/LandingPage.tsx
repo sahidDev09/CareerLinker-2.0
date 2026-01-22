@@ -3,8 +3,8 @@
 import Hero from "./Hero";
 import Stats from "./Stats";
 import FeaturedJobs from "./FeaturedJobs";
-import CTA from "./CTA";
-import SimpleCTA from "./SimpleCTA";
+import CTA from "./Platform";
+import SimpleCTA from "./CTA";
 
 export default function LandingPage() {
   return (

@@ -1,120 +1,49 @@
 "use client";
 
-import { Search, UserCircle, Users, MessageSquare } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useRef, useLayoutEffect } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ArrowRight, Zap } from "lucide-react";
+import { FadeIn } from "@/components/shared/Motion";
 
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
-
-const resourceSteps = [
-  {
-    title: "Explore Opportunities",
-    description: "Our platform is constantly updated with new roles, so check back regularly for the latest tech openings and industry resources.",
-    icon: Search,
-    iconColor: "text-emerald-500",
-    iconBg: "bg-emerald-500/10",
-    shadowColor: "shadow-emerald-500/20",
-  },
-  {
-    title: "Customize Your Profile",
-    description: "Tailor your professional identity by highlighting skills and experiences that align with your career aspirations and goals.",
-    icon: UserCircle,
-    iconColor: "text-pink-500",
-    iconBg: "bg-pink-500/10",
-    shadowColor: "shadow-pink-500/20",
-  },
-  {
-    title: "Engage with Recruiters",
-    description: "Connect with hiring managers directly, share your experiences, and network with like-minded professionals in our community.",
-    icon: Users,
-    iconColor: "text-orange-500",
-    iconBg: "bg-orange-500/10",
-    shadowColor: "shadow-orange-500/20",
-  },
-  {
-    title: "Provide Feedback",
-    description: "We value your input! Let us know what features or resources you'd like to see more of as we work to accommodate your needs.",
-    icon: MessageSquare,
-    iconColor: "text-indigo-500",
-    iconBg: "bg-indigo-500/10",
-    shadowColor: "shadow-indigo-500/20",
-  },
-];
-
-export default function CTA() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-
-  useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
-      // Title reveal
-      gsap.from(titleRef.current, {
-        scrollTrigger: {
-          trigger: titleRef.current,
-          start: "top 80%",
-        },
-        y: 50,
-        opacity: 0,
-        duration: 1,
-        ease: "power4.out",
-      });
-
-      // Cards reveal
-      gsap.from(".cta-card", {
-        scrollTrigger: {
-          trigger: ".cta-grid",
-          start: "top 75%",
-        },
-        y: 100,
-        opacity: 0,
-        scale: 0.95,
-        duration: 1.2,
-        stagger: 0.2,
-        ease: "expo.out",
-      });
-    }, containerRef);
-
-    return () => ctx.revert();
-  }, []);
-
+export default function SimpleCTA() {
   return (
-    <section ref={containerRef} className="container mx-auto py-24 px-4 overflow-hidden">
-      <div className="text-center mb-16">
-        <h2 
-          ref={titleRef}
-          className="text-4xl md:text-6xl font-black tracking-tight text-white leading-[1.1]"
-        >
-          <span className="text-[#ff4d94]">How to Make</span> the Most of <br /> Our Career Platform
-        </h2>
-      </div>
-
-      <div className="cta-grid grid grid-cols-1 md:grid-cols-2 gap-8 mx-auto max-w-6xl">
-        {resourceSteps.map((step) => (
-          <div 
-            key={step.title} 
-            className="cta-card bg-white/[0.03] border-white/10 border p-10 rounded-[2.5rem] shadow-2xl hover:bg-white/[0.08] transition-all duration-500 flex flex-col items-start gap-8 group cursor-default"
-          >
-            <div className={cn(
-              "w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-500 group-hover:scale-110 group-hover:rotate-[10deg]",
-              step.iconBg,
-              step.shadowColor
-            )}>
-              <step.icon className={cn("w-8 h-8", step.iconColor)} strokeWidth={2} />
-            </div>
-            <div className="space-y-4">
-              <h3 className="text-3xl font-bold text-white tracking-tight">
-                 {step.title}
-              </h3>
-              <p className="text-slate-400 text-lg leading-relaxed font-medium">
-                {step.description}
+    <section className="container mx-auto">
+      <div className="mx-auto">
+        <FadeIn direction="up">
+          <div className="relative overflow-hidden bg-white rounded-[3.5rem] p-8 md:p-16 border border-slate-100 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.06)] flex flex-col md:flex-row items-center justify-between gap-12 group transition-all duration-500 hover:shadow-[0_48px_80px_-20px_rgba(0,0,0,0.08)]">
+            
+            {/* Background Accent */}
+            <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[#ff4d94]/5 to-transparent pointer-events-none" />
+            
+            <div className="relative z-10 flex-1 space-y-6 text-center md:text-left">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 text-indigo-600 text-sm font-bold uppercase tracking-wider">
+                <Zap className="w-4 h-4" />
+                <span>Join our network</span>
+              </div>
+              
+              <h2 className="text-4xl md:text-5xl font-black text-slate-900 leading-[1.1]">
+                Ready to find your <br />
+                <span className="text-[#ff4d94]">perfect career?</span>
+              </h2>
+              
+              <p className="text-slate-500 text-lg max-w-md mx-auto md:mx-0">
+                Create your profile today and start applying to the world&apos;s most innovative tech companies.
               </p>
             </div>
+
+            <div className="relative z-10 flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+              <button className="px-10 py-5 bg-[#ff4d94] text-white rounded-[1.5rem] font-black text-lg hover:bg-black transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-3 group">
+                Sign Up Now
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+              <button className="px-10 py-5 bg-white text-slate-900 border-2 border-slate-100 rounded-[1.5rem] font-bold text-lg hover:bg-slate-50 transition-all flex items-center justify-center">
+                Learn More
+              </button>
+            </div>
+            
+            {/* Decorative circles */}
+            <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-indigo-50 rounded-full blur-3xl opacity-60 group-hover:scale-110 transition-transform duration-700" />
+            <div className="absolute -top-12 -right-12 w-48 h-48 bg-pink-50 rounded-full blur-3xl opacity-60 group-hover:scale-110 transition-transform duration-700" />
           </div>
-        ))}
+        </FadeIn>
       </div>
     </section>
   );
