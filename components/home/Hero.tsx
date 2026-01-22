@@ -63,7 +63,7 @@ const JobCard = ({
           </div>
         </div>
         {isActive && (
-          <button className="bg-[#1A1A1A] text-white text-[13px] font-black px-7 py-3 rounded-2xl hover:bg-black transition-all shadow-lg hover:shadow-xl active:scale-95">
+          <button className="bg-[#ff4d94]/80 text-white text-[13px] font-black px-7 py-3 rounded-2xl hover:bg-[#ff4d96] transition-all shadow-lg hover:shadow-xl active:scale-95">
             Apply
           </button>
         )}

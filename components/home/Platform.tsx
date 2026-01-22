@@ -40,12 +40,12 @@ const resourceSteps = [
 
 export default function CTA() {
   return (
-    <section className="container mx-auto py-24 overflow-hidden">
+    <section className="container mx-auto py-4 overflow-hidden">
       <div className="text-center mb-16">
         <h2 
-          className="text-4xl md:text-6xl font-black tracking-tight text-white leading-[1.1]"
+          className="text-4xl md:text-5xl font-bold tracking-tight text-white leading-[1.1]"
         >
-          <span className="text-[#ff4d94]">How to Make</span> the Most of <br /> Our Career Platform
+          <span className="text-[#ff4d94] ">How to Make</span> the Most of <br /> Our Career Platform
         </h2>
       </div>
 

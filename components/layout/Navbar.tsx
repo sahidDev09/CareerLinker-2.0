@@ -60,16 +60,16 @@ export default function Navbar() {
       <div ref={navRef} className="p-4">
         <div 
           ref={navContainerRef}
-          className="mx-auto max-w-7xl bg-white/70 backdrop-blur-xl border border-black/10 shadow-[0_8px_32px_rgba(0,0,0,0.12)] rounded-3xl py-3 px-4 md:px-8 flex items-center justify-between"
+          className="mx-auto max-w-7xl bg-white/10 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.12)] rounded-3xl py-3 px-4 md:px-8 flex items-center justify-between"
         >
           {/* Logo */}
           <div ref={logoRef}>
             <Link href="/" className="flex items-center space-x-2 group">
-              <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg transition-transform hover:rotate-6 active:scale-95">
+              <div className="w-10 h-10 bg-[#ff4d94] rounded-xl flex items-center justify-center text-white shadow-lg transition-transform hover:rotate-6 active:scale-95">
                 <Briefcase size={24} />
               </div>
-              <span className="text-xl font-bold tracking-tight text-black">
-                Career<span className="text-indigo-600">Linker</span>
+              <span className="text-xl font-bold tracking-tight text-white">
+                Career<span className="text-[#ff4d94]">Linker</span>
               </span>
             </Link>
           </div>
@@ -81,8 +81,8 @@ export default function Navbar() {
                 key={link.name}
                 href={link.href}
                 className={cn(
-                  "nav-link text-sm font-semibold transition-colors duration-300 hover:text-indigo-600 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-indigo-600 after:transition-all hover:after:w-full",
-                  pathname === link.href ? "text-indigo-600 after:w-full" : "text-slate-700"
+                  "nav-link text-sm font-semibold transition-colors duration-300 hover:text-[#ff4d94] relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-[#ff4d94] after:transition-all hover:after:w-full",
+                  pathname === link.href ? "text-[#ff4d94] after:w-full" : "text-white/80"
                 )}
               >
                 {link.name}
@@ -92,17 +92,17 @@ export default function Navbar() {
 
           {/* Action Buttons */}
           <div className="hidden md:flex items-center space-x-4" ref={buttonsRef}>
-            <button className="text-sm font-semibold text-slate-700 hover:text-indigo-600 transition-all hover:-translate-y-0.5 active:scale-95">
+            <button className="text-sm font-semibold text-white/80 hover:text-[#ff4d94] transition-all hover:-translate-y-0.5 active:scale-95">
               Login
             </button>
-            <button className="px-6 py-2.5 bg-indigo-600 text-white rounded-full text-sm font-bold shadow-[0_10px_20px_-5px_rgba(79,70,229,0.3)] hover:shadow-[0_15px_30px_-5px_rgba(79,70,229,0.4)] transition-all hover:-translate-y-1 active:scale-95">
+            <button className="px-6 py-2.5 bg-[#ff4d94] text-white rounded-full text-sm font-bold shadow-[0_10px_20px_-5px_rgba(255,77,148,0.3)] hover:shadow-[0_15px_30px_-5px_rgba(255,77,148,0.4)] transition-all hover:-translate-y-1 active:scale-95">
               Post a Job
             </button>
           </div>
 
           {/* Mobile Toggle */}
           <button 
-            className="md:hidden text-black transition-transform active:scale-90" 
+            className="md:hidden text-white transition-transform active:scale-90" 
             onClick={() => setIsOpen(!isOpen)}
           >
             {isOpen ? <X size={28} /> : <Menu size={28} />}
@@ -112,7 +112,7 @@ export default function Navbar() {
         {/* Mobile Menu */}
         <div
           className={cn(
-            "md:hidden overflow-hidden bg-white/90 backdrop-blur-xl border border-black/10 rounded-2xl mt-3 shadow-2xl transition-all duration-300 ease-in-out",
+            "md:hidden overflow-hidden bg-white/10 backdrop-blur-xl border border-white/10 rounded-2xl mt-3 shadow-2xl transition-all duration-300 ease-in-out",
             isOpen ? "max-h-[400px] opacity-100 py-6" : "max-h-0 opacity-0 py-0"
           )}
         >
@@ -122,16 +122,16 @@ export default function Navbar() {
                 key={link.name}
                 href={link.href}
                 onClick={() => setIsOpen(false)}
-                className="block text-lg font-bold text-slate-700 hover:text-indigo-600 transition-colors"
+                className="block text-lg font-bold text-white/90 hover:text-[#ff4d94] transition-colors"
               >
                 {link.name}
               </Link>
             ))}
-            <hr className="border-black/10" />
-            <button className="w-full text-left text-lg font-bold text-slate-700 hover:text-indigo-600 transition-colors">
+            <hr className="border-white/10" />
+            <button className="w-full text-left text-lg font-bold text-white/90 hover:text-[#ff4d94] transition-colors">
               Login
             </button>
-            <button className="w-full py-4 bg-indigo-600 text-white rounded-xl font-bold shadow-md active:scale-[0.98] transition-transform">
+            <button className="w-full py-4 bg-[#ff4d94] text-white rounded-xl font-bold shadow-md active:scale-[0.98] transition-transform">
               Post a Job
             </button>
           </div>
