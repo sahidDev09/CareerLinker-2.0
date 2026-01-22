@@ -1,8 +1,14 @@
 "use client";
 
 import { Search, UserCircle, Users, MessageSquare } from "lucide-react";
-import { FadeIn, StaggerContainer } from "@/components/shared/Motion";
 import { cn } from "@/lib/utils";
+import { useRef, useLayoutEffect } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 const resourceSteps = [
   {
@@ -10,69 +16,106 @@ const resourceSteps = [
     description: "Our platform is constantly updated with new roles, so check back regularly for the latest tech openings and industry resources.",
     icon: Search,
     iconColor: "text-emerald-500",
-    iconBg: "bg-emerald-50",
-    shadowColor: "shadow-emerald-100",
+    iconBg: "bg-emerald-500/10",
+    shadowColor: "shadow-emerald-500/20",
   },
   {
     title: "Customize Your Profile",
     description: "Tailor your professional identity by highlighting skills and experiences that align with your career aspirations and goals.",
     icon: UserCircle,
     iconColor: "text-pink-500",
-    iconBg: "bg-pink-50",
-    shadowColor: "shadow-pink-100",
+    iconBg: "bg-pink-500/10",
+    shadowColor: "shadow-pink-500/20",
   },
   {
     title: "Engage with Recruiters",
     description: "Connect with hiring managers directly, share your experiences, and network with like-minded professionals in our community.",
     icon: Users,
     iconColor: "text-orange-500",
-    iconBg: "bg-orange-50",
-    shadowColor: "shadow-orange-100",
+    iconBg: "bg-orange-500/10",
+    shadowColor: "shadow-orange-500/20",
   },
   {
     title: "Provide Feedback",
     description: "We value your input! Let us know what features or resources you'd like to see more of as we work to accommodate your needs.",
     icon: MessageSquare,
     iconColor: "text-indigo-500",
-    iconBg: "bg-indigo-50",
-    shadowColor: "shadow-indigo-100",
+    iconBg: "bg-indigo-500/10",
+    shadowColor: "shadow-indigo-500/20",
   },
 ];
 
 export default function CTA() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      // Title reveal
+      gsap.from(titleRef.current, {
+        scrollTrigger: {
+          trigger: titleRef.current,
+          start: "top 80%",
+        },
+        y: 50,
+        opacity: 0,
+        duration: 1,
+        ease: "power4.out",
+      });
+
+      // Cards reveal
+      gsap.from(".cta-card", {
+        scrollTrigger: {
+          trigger: ".cta-grid",
+          start: "top 75%",
+        },
+        y: 100,
+        opacity: 0,
+        scale: 0.95,
+        duration: 1.2,
+        stagger: 0.2,
+        ease: "expo.out",
+      });
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section className="container mx-auto">
-      <div className="text-center mb-10">
-        <FadeIn direction="up">
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white leading-tight">
-            <span className="text-[#ff4d94]">How to Make</span> the Most of <br /> Our Career Platform
-          </h2>
-        </FadeIn>
+    <section ref={containerRef} className="container mx-auto py-24 px-4 overflow-hidden">
+      <div className="text-center mb-16">
+        <h2 
+          ref={titleRef}
+          className="text-4xl md:text-6xl font-black tracking-tight text-white leading-[1.1]"
+        >
+          <span className="text-[#ff4d94]">How to Make</span> the Most of <br /> Our Career Platform
+        </h2>
       </div>
 
-      <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-8 mx-auto">
-        {resourceSteps.map((step, i) => (
-          <FadeIn key={step.title} direction="up" delay={i * 0.1}>
-            <div className="bg-white/5 border-white/10 border p-10 rounded-[2.5rem] shadow-xl hover:bg-white/10 transition-all duration-300 flex flex-col items-start gap-6 group">
-              <div className={cn(
-                "w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-transform group-hover:scale-110 duration-300",
-                step.iconBg.replace('bg-', 'bg-').replace('50', '500/10'),
-                step.shadowColor.replace('shadow-', 'shadow-').replace('100', '500/20')
-              )}>
-                <step.icon className={cn("w-7 h-7", step.iconColor)} strokeWidth={2.5} />
-              </div>
-              <div className="space-y-3">
-                <h3 className="text-2xl font-bold text-white">
-                   {step.title}
-                </h3>
-                <p className="text-slate-400 text-lg leading-relaxed">
-                  {step.description}
-                </p>
-              </div>
+      <div className="cta-grid grid grid-cols-1 md:grid-cols-2 gap-8 mx-auto max-w-6xl">
+        {resourceSteps.map((step) => (
+          <div 
+            key={step.title} 
+            className="cta-card bg-white/[0.03] border-white/10 border p-10 rounded-[2.5rem] shadow-2xl hover:bg-white/[0.08] transition-all duration-500 flex flex-col items-start gap-8 group cursor-default"
+          >
+            <div className={cn(
+              "w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-500 group-hover:scale-110 group-hover:rotate-[10deg]",
+              step.iconBg,
+              step.shadowColor
+            )}>
+              <step.icon className={cn("w-8 h-8", step.iconColor)} strokeWidth={2} />
             </div>
-          </FadeIn>
+            <div className="space-y-4">
+              <h3 className="text-3xl font-bold text-white tracking-tight">
+                 {step.title}
+              </h3>
+              <p className="text-slate-400 text-lg leading-relaxed font-medium">
+                {step.description}
+              </p>
+            </div>
+          </div>
         ))}
-      </StaggerContainer>
+      </div>
     </section>
   );
 }

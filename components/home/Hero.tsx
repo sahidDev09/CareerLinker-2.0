@@ -27,8 +27,8 @@ const JobCard = ({
 }: JobCardProps) => {
   return (
     <motion.div
-      whileHover={{ y: -15, scale: isActive ? 1.15 : 1.1, zIndex: 50 }}
-      className={`relative w-[280px] md:w-[300px] p-8 rounded-[3rem] shadow-2xl transition-all duration-500 ${color} ${isActive ? 'z-30 scale-110 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] border-4 border-white' : 'z-10 opacity-95'}`}
+      whileHover={{ y: -15, scale: isActive ? 1.15 : 1.1, zIndex: isActive ? 100 : 60 }}
+      className={`relative w-[280px] md:w-[300px] p-8 rounded-[3rem] shadow-2xl transition-all duration-500 ${color} ${isActive ? 'z-50 scale-110 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] border-4 border-white' : 'z-10 opacity-95'}`}
       style={{
         boxShadow: isActive ? '0 30px 60px -15px rgba(0,0,0,0.15)' : '0 10px 30px -10px rgba(0,0,0,0.05)'
       }}
@@ -64,7 +64,7 @@ const JobCard = ({
         </div>
         {isActive && (
           <button className="bg-[#1A1A1A] text-white text-[13px] font-black px-7 py-3 rounded-2xl hover:bg-black transition-all shadow-lg hover:shadow-xl active:scale-95">
-            Apply Jobs
+            Apply
           </button>
         )}
       </div>
@@ -79,13 +79,17 @@ interface FloatingIconProps {
   left: string;
   size?: number;
   delay?: number;
+  opacity?: number;
 }
 
-const FloatingIcon = ({ icon: Icon, color, top, left, size = 48, delay = 0 }: FloatingIconProps) => (
+const FloatingIcon = ({ icon: Icon, color, top, left, size = 48, delay = 0, opacity = 0.7 }: FloatingIconProps) => (
   <motion.div
-    initial={{ y: 0 }}
-    animate={{ y: [-15, 15, -15] }}
-    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay }}
+    initial={{ y: 0, opacity: 0 }}
+    animate={{ y: [-15, 15, -15], opacity }}
+    transition={{ 
+      y: { duration: 5, repeat: Infinity, ease: "easeInOut", delay },
+      opacity: { duration: 1, delay }
+    }}
     className="absolute z-0 pointer-events-none hidden lg:block"
     style={{ top, left }}
   >
@@ -125,7 +129,7 @@ export default function Hero() {
       salary: "$300K - $500K",
       description: "We are looking for a Senior Social Specialist to join our team and lead our strategy.",
       logo: "https://upload.wikimedia.org/wikipedia/commons/d/d3/Twitch_Glitch_Logo_Purple.svg",
-      color: "bg-[#F5E8FF] text-[#9333EA]",
+      color: "bg-[#EDE9FE] text-[#7C3AED]",
       avatars: ["https://i.pravatar.cc/100?u=1", "https://i.pravatar.cc/100?u=2", "https://i.pravatar.cc/100?u=3"]
     },
     {
@@ -134,7 +138,7 @@ export default function Hero() {
       salary: "$60K - $112K",
       description: "We are seeking a Senior Teller Executive to craft innovative and user-friendly experience.",
       logo: "https://upload.wikimedia.org/wikipedia/commons/5/5c/Bank_Central_Asia.svg",
-      color: "bg-[#FFF1E0] text-[#EA580C]",
+      color: "bg-[#FED7AA] text-[#EA580C]",
       avatars: ["https://i.pravatar.cc/100?u=4", "https://i.pravatar.cc/100?u=5", "https://i.pravatar.cc/100?u=6"]
     },
     {
@@ -143,7 +147,7 @@ export default function Hero() {
       salary: "$120K - $200K",
       description: "We seek a Senior Product Designer to craft innovative, user-friendly experiences.",
       logo: "https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg",
-      color: "bg-[#E6FFFA] text-[#0D9488]",
+      color: "bg-[#CCFBF1] text-[#0F766E]",
       isActive: true,
       avatars: ["https://i.pravatar.cc/100?u=7", "https://i.pravatar.cc/100?u=8", "https://i.pravatar.cc/100?u=9"]
     },
@@ -153,7 +157,7 @@ export default function Hero() {
       salary: "$200K - $500K",
       description: "Looking for a Junior Frontend developer to implement visual elements of user.",
       logo: "https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg",
-      color: "bg-[#FFF0F0] text-[#E11D48]",
+      color: "bg-[#FECDD3] text-[#E11D48]",
       avatars: ["https://i.pravatar.cc/100?u=10", "https://i.pravatar.cc/100?u=11", "https://i.pravatar.cc/100?u=12"]
     },
     {
@@ -162,7 +166,7 @@ export default function Hero() {
       salary: "$100K - $500K",
       description: "Senior Account Executive to manage customer health and building strong relationships.",
       logo: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg",
-      color: "bg-[#E0F2FE] text-[#0284C7]",
+      color: "bg-[#DBEAFE] text-[#1D4ED8]",
       avatars: ["https://i.pravatar.cc/13", "https://i.pravatar.cc/14", "https://i.pravatar.cc/15"]
     },
   ];
@@ -170,10 +174,10 @@ export default function Hero() {
   return (
     <section className="relative w-full overflow-hidden pt-10 pb-20">
       {/* Decorative Background Elements */}
-      <Cloud top="2%" left="2%" scale={1.3} opacity={0.7} />
-      <Cloud top="12%" left="88%" scale={0.9} opacity={0.5} />
-      <Cloud top="42%" left="-8%" scale={1.6} opacity={0.4} delay={3} />
-      <Cloud top="38%" left="82%" scale={1.4} opacity={0.6} delay={1.5} />
+      <Cloud top="2%" left="2%" scale={1.3} opacity={0.1} />
+      <Cloud top="12%" left="88%" scale={0.9} opacity={0.1} />
+      <Cloud top="42%" left="-8%" scale={1.6} opacity={0.1} delay={3} />
+      <Cloud top="38%" left="82%" scale={1.4} opacity={0.1} delay={1.5} />
       
       {/* Floating Icons */}
       <FloatingIcon icon={Dribbble} color="text-pink-500" top="12%" left="12%" size={52} delay={0} />
@@ -228,7 +232,7 @@ export default function Hero() {
         </motion.div>
 
         {/* Job Cards Section */}
-        <div className="relative mt-12 flex justify-center items-end px-4 overflow-visible py-10">
+        <div className="relative mt-12 flex justify-center items-end px-4 overflow-visible py-10 rounded-[3rem]">
           <div className="flex -space-x-20 md:-space-x-32 items-end max-w-[1400px]">
             {jobs.map((job, index) => (
               <motion.div
@@ -241,6 +245,7 @@ export default function Hero() {
                 }}
                 transition={{ delay: 0.1 * index, duration: 0.8, ease: "backOut" }}
                 className="relative shrink-0"
+                style={{ zIndex: index === 2 ? 50 : 10 }}
               >
                 <JobCard {...job} />
               </motion.div>

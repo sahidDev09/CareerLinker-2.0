@@ -2,58 +2,87 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
 import { Briefcase, Menu, X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useRef, useLayoutEffect } from "react";
 import { cn } from "@/lib/utils";
-
-const navLinks = [
-  { name: "Find Jobs", href: "/jobs" },
-  { name: "Companies", href: "#" },
-  { name: "For Employers", href: "/dashboard/employer" },
-  { name: "Dashboard", href: "/dashboard/candidate" },
-];
+import gsap from "gsap";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  
+  const navRef = useRef<HTMLDivElement>(null);
+  const navContainerRef = useRef<HTMLDivElement>(null);
+  const logoRef = useRef<HTMLDivElement>(null);
+  const linksRef = useRef<HTMLDivElement>(null);
+  const buttonsRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+  const navLinks = [
+    { name: "Find Jobs", href: "/jobs" },
+    { name: "Companies", href: "#" },
+    { name: "For Employers", href: "/dashboard/employer" },
+    { name: "Dashboard", href: "/dashboard/candidate" },
+  ];
+
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+      
+      tl.from(navContainerRef.current, {
+        y: -100,
+        opacity: 0,
+        duration: 1.2,
+      })
+      .from(logoRef.current, {
+        x: -20,
+        opacity: 0,
+        duration: 0.8,
+      }, "-=0.8")
+      .from(".nav-link", {
+        y: -10,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.1,
+      }, "-=0.6")
+      .from(buttonsRef.current, {
+        x: 20,
+        opacity: 0,
+        duration: 0.8,
+      }, "-=0.6");
+    }, navRef);
+
+    return () => ctx.revert();
   }, []);
 
   return (
-    <nav
-      className={cn(
-        "fixed top-0 w-full z-50 transition-all duration-300",
-        scrolled ? "bg-black/80 backdrop-blur-md border-b border-white/5 shadow-lg py-3" : "bg-transparent py-5"
-      )}
-    >
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2 group">
-            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg group-hover:rotate-6 transition-transform">
-              <Briefcase size={24} />
-            </div>
-            <span className="text-xl font-bold tracking-tight text-white">
-              Career<span className="text-indigo-400">Linker</span>
-            </span>
-          </Link>
+    <div className="fixed w-full z-50 top-0 left-0 right-0">
+      {/* Permanent Floating Wrapper */}
+      <div ref={navRef} className="p-4">
+        <div 
+          ref={navContainerRef}
+          className="mx-auto max-w-7xl bg-white/70 backdrop-blur-xl border border-black/10 shadow-[0_8px_32px_rgba(0,0,0,0.12)] rounded-3xl py-3 px-4 md:px-8 flex items-center justify-between"
+        >
+          {/* Logo */}
+          <div ref={logoRef}>
+            <Link href="/" className="flex items-center space-x-2 group">
+              <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg transition-transform hover:rotate-6 active:scale-95">
+                <Briefcase size={24} />
+              </div>
+              <span className="text-xl font-bold tracking-tight text-black">
+                Career<span className="text-indigo-600">Linker</span>
+              </span>
+            </Link>
+          </div>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-8" ref={linksRef}>
             {navLinks.map((link) => (
               <Link
                 key={link.name}
                 href={link.href}
                 className={cn(
-                  "text-sm font-medium transition-colors hover:text-indigo-400",
-                  pathname === link.href ? "text-indigo-400" : "text-slate-300"
+                  "nav-link text-sm font-semibold transition-colors duration-300 hover:text-indigo-600 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-indigo-600 after:transition-all hover:after:w-full",
+                  pathname === link.href ? "text-indigo-600 after:w-full" : "text-slate-700"
                 )}
               >
                 {link.name}
@@ -61,48 +90,53 @@ export default function Navbar() {
             ))}
           </div>
 
-          <div className="hidden md:flex items-center space-x-4">
-            <button className="text-sm font-medium text-slate-300 hover:text-indigo-400 transition-colors">
+          {/* Action Buttons */}
+          <div className="hidden md:flex items-center space-x-4" ref={buttonsRef}>
+            <button className="text-sm font-semibold text-slate-700 hover:text-indigo-600 transition-all hover:-translate-y-0.5 active:scale-95">
               Login
             </button>
-            <button className="px-5 py-2.5 bg-indigo-600 text-white rounded-full text-sm font-semibold shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5">
+            <button className="px-6 py-2.5 bg-indigo-600 text-white rounded-full text-sm font-bold shadow-[0_10px_20px_-5px_rgba(79,70,229,0.3)] hover:shadow-[0_15px_30px_-5px_rgba(79,70,229,0.4)] transition-all hover:-translate-y-1 active:scale-95">
               Post a Job
             </button>
           </div>
 
           {/* Mobile Toggle */}
-          <button className="md:hidden text-white" onClick={() => setIsOpen(!isOpen)}>
+          <button 
+            className="md:hidden text-black transition-transform active:scale-90" 
+            onClick={() => setIsOpen(!isOpen)}
+          >
             {isOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
-      </div>
 
-      {/* Mobile Menu */}
-      <motion.div
-        initial={false}
-        animate={isOpen ? { height: "auto", opacity: 1 } : { height: 0, opacity: 0 }}
-        className="md:hidden overflow-hidden bg-black border-b border-white/10"
-      >
-        <div className="px-4 py-6 space-y-4">
-          {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              href={link.href}
-              onClick={() => setIsOpen(false)}
-              className="block text-lg font-medium text-slate-300"
-            >
-              {link.name}
-            </Link>
-          ))}
-          <hr className="border-white/5" />
-          <button className="w-full text-left text-lg font-medium text-slate-300">
-            Login
-          </button>
-          <button className="w-full py-3 bg-indigo-600 text-white rounded-xl font-semibold shadow-md">
-            Post a Job
-          </button>
+        {/* Mobile Menu */}
+        <div
+          className={cn(
+            "md:hidden overflow-hidden bg-white/90 backdrop-blur-xl border border-black/10 rounded-2xl mt-3 shadow-2xl transition-all duration-300 ease-in-out",
+            isOpen ? "max-h-[400px] opacity-100 py-6" : "max-h-0 opacity-0 py-0"
+          )}
+        >
+          <div className="px-6 space-y-4">
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                href={link.href}
+                onClick={() => setIsOpen(false)}
+                className="block text-lg font-bold text-slate-700 hover:text-indigo-600 transition-colors"
+              >
+                {link.name}
+              </Link>
+            ))}
+            <hr className="border-black/10" />
+            <button className="w-full text-left text-lg font-bold text-slate-700 hover:text-indigo-600 transition-colors">
+              Login
+            </button>
+            <button className="w-full py-4 bg-indigo-600 text-white rounded-xl font-bold shadow-md active:scale-[0.98] transition-transform">
+              Post a Job
+            </button>
+          </div>
         </div>
-      </motion.div>
-    </nav>
+      </div>
+    </div>
   );
 }
