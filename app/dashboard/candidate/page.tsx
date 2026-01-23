@@ -209,9 +209,12 @@ export default function CandidateDashboard() {
                   <span>Add work experience</span>
                 </div>
               </div>
-              <button className="w-full py-3 bg-white/5 text-white rounded-xl font-bold hover:bg-white/10 transition-colors mt-4">
+              <Link 
+                href="/dashboard/candidate/profile"
+                className="w-full inline-block text-center py-3 bg-white/5 text-white rounded-xl font-bold hover:bg-white/10 transition-colors mt-4"
+              >
                 Update Profile
-              </button>
+              </Link>
             </div>
           </div>
         </div>
