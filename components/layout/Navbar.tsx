@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { Bookmark, Menu, X, Briefcase } from "lucide-react";
 import { SignInButton, SignUpButton, UserButton, SignedIn, SignedOut, useUser } from "@clerk/nextjs";
 import { useState, useRef, useLayoutEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -118,7 +118,21 @@ export default function Navbar() {
                       userButtonAvatarBox: "w-14 h-14 border-2 border-[#ff4d94]/50 hover:border-[#ff4d94] transition-all"
                     }
                   }}
-                />
+                >
+                    <UserButton.MenuItems>
+                      <UserButton.Link 
+                        label="Saved Jobs" 
+                        labelIcon={<Bookmark size={16} />} 
+                        href="/dashboard/candidate/saved" 
+                      />
+                      <UserButton.Link 
+                        label="Applied Jobs" 
+                        labelIcon={<Briefcase size={16} />} 
+                        href="/dashboard/candidate/applications" 
+                      />
+                      <UserButton.Action label="manageAccount" />
+                    </UserButton.MenuItems>
+                </UserButton>
               </div>
             </SignedIn>
           </div>
@@ -175,7 +189,21 @@ export default function Navbar() {
                         userButtonAvatarBox: "w-12 h-12 border-2 border-[#ff4d94]/50"
                       }
                     }}
-                  />
+                  >
+                    <UserButton.MenuItems>
+                      <UserButton.Link 
+                        label="Saved Jobs" 
+                        labelIcon={<Bookmark size={16} />} 
+                        href="/dashboard/candidate/saved" 
+                      />
+                      <UserButton.Link 
+                        label="Applied Jobs" 
+                        labelIcon={<Briefcase size={16} />} 
+                        href="/dashboard/candidate/applications" 
+                      />
+                      <UserButton.Action label="manageAccount" />
+                    </UserButton.MenuItems>
+                  </UserButton>
                 </div>
                 <button className="w-full py-4 bg-[#ff4d94] text-white rounded-xl font-bold shadow-md active:scale-[0.98] transition-transform">
                   {actionButtonText}
