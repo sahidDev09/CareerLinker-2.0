@@ -4,6 +4,7 @@ import { Outfit } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { dark } from "@clerk/themes";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -23,7 +24,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider appearance={{
+    theme: dark,
+  }}>
       <html lang="en">
         <body className={`${outfit.variable} font-sans antialiased`}>
           <SmoothScroll>
