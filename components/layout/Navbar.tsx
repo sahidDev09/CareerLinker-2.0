@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Briefcase, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState, useRef, useLayoutEffect } from "react";
 import { cn } from "@/lib/utils";
 import gsap from "gsap";
