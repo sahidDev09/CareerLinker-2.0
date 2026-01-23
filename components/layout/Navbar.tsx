@@ -115,7 +115,8 @@ export default function Navbar() {
                 <UserButton 
                   appearance={{
                     elements: {
-                      userButtonAvatarBox: "w-14 h-14 border-2 border-[#ff4d94]/50 hover:border-[#ff4d94] transition-all"
+                      userButtonAvatarBox: "!w-10 !h-10 border-2 border-[#ff4d94]/50 hover:border-[#ff4d94] transition-all shadow-lg",
+                      userButtonTrigger: "!w-10 !h-10"
                     }
                   }}
                 >
@@ -186,7 +187,8 @@ export default function Navbar() {
                   <UserButton 
                     appearance={{
                       elements: {
-                        userButtonAvatarBox: "w-12 h-12 border-2 border-[#ff4d94]/50"
+                        userButtonAvatarBox: "!w-14 !h-14 border-2 border-[#ff4d94]/50 shadow-md",
+                        userButtonTrigger: "!w-14 !h-14"
                       }
                     }}
                   >
