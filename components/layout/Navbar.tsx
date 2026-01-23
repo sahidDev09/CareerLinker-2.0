@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
+import { SignInButton, SignUpButton, UserButton, SignedIn, SignedOut, useUser } from "@clerk/nextjs";
 import { useState, useRef, useLayoutEffect } from "react";
 import { cn } from "@/lib/utils";
 import gsap from "gsap";
 import Image from "next/image";
+import RoleSelection from "@/components/shared/RoleSelection";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,6 +19,10 @@ export default function Navbar() {
   const logoRef = useRef<HTMLDivElement>(null);
   const linksRef = useRef<HTMLDivElement>(null);
   const buttonsRef = useRef<HTMLDivElement>(null);
+
+  const { user } = useUser();
+  const role = user?.publicMetadata?.role as "candidate" | "recruiter" | undefined;
+  const actionButtonText = role === "candidate" ? "Apply Jobs" : "Post a Job";
 
   const navLinks = [
     { name: "Find Jobs", href: "/jobs" },
@@ -87,13 +93,35 @@ export default function Navbar() {
           </div>
 
           {/* Action Buttons */}
-          <div className="hidden md:flex items-center space-x-4" ref={buttonsRef}>
-            <button className="text-sm font-semibold text-white/80 hover:text-[#ff4d94] transition-all hover:-translate-y-0.5 active:scale-95">
-              Login
-            </button>
-            <button className="px-6 py-2.5 bg-[#ff4d94] text-white rounded-full text-sm font-bold shadow-[0_10px_20px_-5px_rgba(255,77,148,0.3)] hover:shadow-[0_15px_30px_-5px_rgba(255,77,148,0.4)] transition-all hover:-translate-y-1 active:scale-95">
-              Post a Job
-            </button>
+          <div className="hidden md:flex items-center space-x-6" ref={buttonsRef}>
+            <SignedOut>
+              <div className="flex items-center space-x-4">
+                <SignInButton mode="modal">
+                  <button className="text-sm font-semibold text-white/80 hover:text-[#ff4d94] transition-all hover:-translate-y-0.5 active:scale-95">
+                    Login
+                  </button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <button className="px-6 py-2.5 bg-[#ff4d94] text-white rounded-full text-sm font-bold shadow-[0_10px_20px_-5px_rgba(255,77,148,0.3)] hover:shadow-[0_15px_30px_-5px_rgba(255,77,148,0.4)] transition-all hover:-translate-y-1 active:scale-95">
+                    Sign Up
+                  </button>
+                </SignUpButton>
+              </div>
+            </SignedOut>
+            <SignedIn>
+              <div className="flex items-center space-x-6">
+                <button className="px-6 py-2.5 bg-[#ff4d94] text-white rounded-full text-sm font-bold shadow-[0_10px_20px_-5px_rgba(255,77,148,0.3)] hover:shadow-[0_15px_30px_-5px_rgba(255,77,148,0.4)] transition-all hover:-translate-y-1 active:scale-95">
+                  {actionButtonText}
+                </button>
+                <UserButton 
+                  appearance={{
+                    elements: {
+                      userButtonAvatarBox: "w-14 h-14 border-2 border-[#ff4d94]/50 hover:border-[#ff4d94] transition-all"
+                    }
+                  }}
+                />
+              </div>
+            </SignedIn>
           </div>
 
           {/* Mobile Toggle */}
@@ -124,15 +152,41 @@ export default function Navbar() {
               </Link>
             ))}
             <hr className="border-white/10" />
-            <button className="w-full text-left text-lg font-bold text-white/90 hover:text-[#ff4d94] transition-colors">
-              Login
-            </button>
-            <button className="w-full py-4 bg-[#ff4d94] text-white rounded-xl font-bold shadow-md active:scale-[0.98] transition-transform">
-              Post a Job
-            </button>
+            <SignedOut>
+              <div className="space-y-4">
+                <SignInButton mode="modal">
+                  <button className="w-full text-left text-lg font-bold text-white/90 hover:text-[#ff4d94] transition-colors">
+                    Login
+                  </button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <button className="w-full py-4 bg-[#ff4d94] text-white rounded-xl font-bold shadow-md active:scale-[0.98] transition-transform">
+                    Sign Up
+                  </button>
+                </SignUpButton>
+              </div>
+            </SignedOut>
+            <SignedIn>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-lg font-bold text-white/90">Account</span>
+                  <UserButton 
+                    appearance={{
+                      elements: {
+                        userButtonAvatarBox: "w-12 h-12 border-2 border-[#ff4d94]/50"
+                      }
+                    }}
+                  />
+                </div>
+                <button className="w-full py-4 bg-[#ff4d94] text-white rounded-xl font-bold shadow-md active:scale-[0.98] transition-transform">
+                  {actionButtonText}
+                </button>
+              </div>
+            </SignedIn>
           </div>
         </div>
       </div>
+      <RoleSelection />
     </div>
   );
 }

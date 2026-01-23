@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
@@ -22,18 +23,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${outfit.variable} font-sans antialiased`}>
-        <SmoothScroll>
-          <div className="bg-gradient-overlay" />
-          <div className="grid-background" />
-          <Navbar />
-          <main className="min-h-screen pt-20">
-            {children}
-          </main>
-          <Footer />
-        </SmoothScroll>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body className={`${outfit.variable} font-sans antialiased`}>
+          <SmoothScroll>
+            <div className="bg-gradient-overlay" />
+            <div className="grid-background" />
+            <Navbar />
+            <main className="min-h-screen pt-20">
+              {children}
+            </main>
+            <Footer />
+          </SmoothScroll>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
