@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Briefcase, Github, Twitter, Linkedin, Facebook } from "lucide-react";
+import Image from "next/image";
 
 export default function Footer() {
   return (
@@ -8,12 +9,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 text-white">
           <div className="col-span-1 md:col-span-1 space-y-4 text-white">
             <Link href="/" className="flex items-center space-x-2 group">
-              <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-lg">
-                <Briefcase size={18} />
-              </div>
-              <span className="text-xl font-bold tracking-tight text-white">
-                Career<span className="text-indigo-400">Linker</span>
-              </span>
+             <Image src="/assests/careerLinkerBig.png" alt="Logo" width={300} height={300} className="h-24 w-full"/>
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed">
               Connecting world-class talent with the most innovative companies on the planet.

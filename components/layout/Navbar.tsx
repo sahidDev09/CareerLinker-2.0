@@ -6,6 +6,7 @@ import { Briefcase, Menu, X } from "lucide-react";
 import { useState, useRef, useLayoutEffect } from "react";
 import { cn } from "@/lib/utils";
 import gsap from "gsap";
+import Image from "next/image";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -60,17 +61,12 @@ export default function Navbar() {
       <div ref={navRef} className="p-4">
         <div 
           ref={navContainerRef}
-          className="mx-auto max-w-7xl bg-white/10 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.12)] rounded-3xl py-3 px-4 md:px-8 flex items-center justify-between"
+          className="mx-auto max-w-7xl bg-white/10 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.12)] rounded-3xl px-4 md:px-8 flex items-center justify-between"
         >
           {/* Logo */}
           <div ref={logoRef}>
             <Link href="/" className="flex items-center space-x-2 group">
-              <div className="w-10 h-10 bg-[#ff4d94] rounded-xl flex items-center justify-center text-white shadow-lg transition-transform hover:rotate-6 active:scale-95">
-                <Briefcase size={24} />
-              </div>
-              <span className="text-xl font-bold tracking-tight text-white">
-                Career<span className="text-[#ff4d94]">Linker</span>
-              </span>
+              <Image src="/assests/careerLinkerBig.png" alt="Logo" width={200} height={200} className="h-16 object-contain"/>
             </Link>
           </div>
 
