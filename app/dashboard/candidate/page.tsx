@@ -17,10 +17,10 @@ import {
 import Link from "next/link";
 
 const stats = [
-  { label: "Applied Jobs", value: 12, icon: Briefcase, color: "text-blue-600", bg: "bg-blue-50" },
-  { label: "Interviews", value: 3, icon: Calendar, color: "text-purple-600", bg: "bg-purple-50" },
-  { label: "Shortlisted", value: 5, icon: CheckCircle2, color: "text-green-600", bg: "bg-green-50" },
-  { label: "Rejected", value: 2, icon: XCircle, color: "text-red-600", bg: "bg-red-50" },
+  { label: "Applied Jobs", value: 12, icon: Briefcase, color: "text-blue-400", bg: "bg-blue-400/10" },
+  { label: "Interviews", value: 3, icon: Calendar, color: "text-[#FF4D94]", bg: "bg-[#FF4D94]/10" },
+  { label: "Shortlisted", value: 5, icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-400/10" },
+  { label: "Rejected", value: 2, icon: XCircle, color: "text-rose-400", bg: "bg-rose-400/10" },
 ];
 
 const applications = [
@@ -69,12 +69,12 @@ export default function CandidateDashboard() {
       <FadeIn direction="up">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div className="space-y-2">
-            <h1 className="text-3xl font-extrabold tracking-tight">Welcome back, <span className="text-indigo-600">Sahid!</span></h1>
-            <p className="text-slate-500 dark:text-slate-400">Here's an overview of your job applications and upcoming interviews.</p>
+            <h1 className="text-3xl font-extrabold tracking-tight">Welcome back, <span className="gradient-text">Sahid!</span></h1>
+            <p className="text-slate-400">Here's an overview of your job applications and upcoming interviews.</p>
           </div>
           <Link 
             href="/jobs" 
-            className="px-6 py-3 gradient-bg text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all"
+            className="px-6 py-3 bg-[#FF4D94] text-white rounded-xl font-bold shadow-[0_10px_20px_-5px_rgba(255,77,148,0.3)] hover:shadow-[0_15px_30px_-5px_rgba(255,77,148,0.4)] transition-all hover:-translate-y-1 active:scale-95"
           >
             Find New Jobs
           </Link>
@@ -84,15 +84,15 @@ export default function CandidateDashboard() {
       <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         {stats.map((stat) => (
           <ScaleIn key={stat.label}>
-            <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
+            <div className="p-6 rounded-2xl glass shadow-sm group hover:border-[#FF4D94]/50 transition-all duration-300">
               <div className="flex items-center justify-between mb-4">
-                <div className={`w-12 h-12 rounded-xl ${stat.bg} dark:bg-slate-800 flex items-center justify-center ${stat.color}`}>
+                <div className={`w-12 h-12 rounded-xl ${stat.bg} flex items-center justify-center ${stat.color}`}>
                   <stat.icon size={24} />
                 </div>
-                <div className="text-xs font-bold text-green-600 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full">+2 this week</div>
+                <div className="text-xs font-bold text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full">+2 this week</div>
               </div>
-              <div className="text-3xl font-extrabold text-slate-900 dark:text-white">{stat.value}</div>
-              <div className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">{stat.label}</div>
+              <div className="text-3xl font-extrabold text-white">{stat.value}</div>
+              <div className="text-sm font-medium text-slate-400 mt-1">{stat.label}</div>
             </div>
           </ScaleIn>
         ))}
@@ -103,48 +103,48 @@ export default function CandidateDashboard() {
         <div className="lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold">Recent Applications</h2>
-            <Link href="/dashboard/candidate/applications" className="text-sm font-bold text-indigo-600 hover:underline">View All</Link>
+            <Link href="/dashboard/candidate/applications" className="text-sm font-bold gradient-text hover:underline">View All</Link>
           </div>
           
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm">
+          <div className="glass rounded-3xl overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-50 dark:bg-slate-800/50">
-                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Job Role</th>
-                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Applied Date</th>
-                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Action</th>
+                  <tr className="bg-white/5">
+                    <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Job Role</th>
+                    <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Applied Date</th>
+                    <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody className="divide-y divide-white/10">
                   {applications.map((app) => (
-                    <tr key={app.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group">
+                    <tr key={app.id} className="hover:bg-white/5 transition-colors group">
                       <td className="px-6 py-6">
                         <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+                          <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-slate-400">
                             <Briefcase size={20} />
                           </div>
                           <div>
-                            <div className="font-bold text-slate-900 dark:text-white">{app.role}</div>
-                            <div className="text-xs text-slate-500 dark:text-slate-400">{app.company} • {app.location}</div>
+                            <div className="font-bold text-white">{app.role}</div>
+                            <div className="text-xs text-slate-400">{app.company} • {app.location}</div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-6 font-medium">
                         <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          app.status === "Shortlisted" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" :
-                          app.status === "Interview Scheduled" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" :
-                          "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                          app.status === "Shortlisted" ? "bg-green-100/10 text-green-400" :
+                          app.status === "Interview Scheduled" ? "bg-purple-100/10 text-purple-400" :
+                          "bg-blue-100/10 text-blue-400"
                         }`}>
                           {app.status}
                         </span>
                       </td>
-                      <td className="px-6 py-6 text-sm text-slate-500 dark:text-slate-400">
+                      <td className="px-6 py-6 text-sm text-slate-400">
                         {app.date}
                       </td>
                       <td className="px-6 py-6 text-right">
-                        <button className="text-slate-400 hover:text-indigo-600 transition-colors">
+                        <button className="text-slate-400 hover:text-white transition-colors">
                           <ExternalLink size={18} />
                         </button>
                       </td>
@@ -159,7 +159,7 @@ export default function CandidateDashboard() {
         {/* Sidebar widgets */}
         <div className="space-y-8">
           {/* Upcoming Interview */}
-          <div className="p-6 rounded-3xl bg-indigo-600 text-white shadow-xl shadow-indigo-200 dark:shadow-none relative overflow-hidden">
+          <div className="p-6 rounded-3xl bg-[#FF4D94] text-white shadow-xl shadow-[#FF4D94]/20 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-10">
               <Calendar size={120} />
             </div>
@@ -177,7 +177,7 @@ export default function CandidateDashboard() {
                   <Play size={14} />
                   <span>Join via {interview.type}</span>
                 </div>
-                <button className="w-full py-3 bg-white text-indigo-600 rounded-xl font-bold hover:bg-slate-50 transition-colors">
+                <button className="w-full py-3 bg-white text-[#FF4D94] rounded-xl font-bold hover:bg-slate-100 transition-colors">
                   View Invitation
                 </button>
               </div>
@@ -185,15 +185,15 @@ export default function CandidateDashboard() {
           </div>
 
           {/* Profile widget */}
-          <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div className="p-6 rounded-3xl glass shadow-sm">
             <h3 className="font-bold mb-4">Profile Completeness</h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-500 dark:text-slate-400 font-medium">Almost there!</span>
-                <span className="font-bold text-indigo-600">85%</span>
+                <span className="text-slate-400 font-medium">Almost there!</span>
+                <span className="font-bold text-[#FF4D94]">85%</span>
               </div>
-              <div className="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                <div className="h-full bg-indigo-600 rounded-full" style={{ width: "85%" }}></div>
+              <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden">
+                <div className="h-full bg-[#FF4D94] rounded-full shadow-[0_0_10px_rgba(255,77,148,0.5)]" style={{ width: "85%" }}></div>
               </div>
               <div className="space-y-2 pt-2">
                 <div className="flex items-center text-sm text-green-600">
@@ -209,7 +209,7 @@ export default function CandidateDashboard() {
                   <span>Add work experience</span>
                 </div>
               </div>
-              <button className="w-full py-3 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl font-bold hover:bg-slate-100 transition-colors mt-4">
+              <button className="w-full py-3 bg-white/5 text-white rounded-xl font-bold hover:bg-white/10 transition-colors mt-4">
                 Update Profile
               </button>
             </div>

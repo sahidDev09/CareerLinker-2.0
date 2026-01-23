@@ -6,6 +6,7 @@
   --color-brand-primary: #6366f1;
   --color-brand-secondary: #a855f7;
   --color-brand-accent: #f43f5e;
+  --color-brand-pink: #FF4D94;
 
   /* Custom Radius */
   --radius-xl: 1rem;
@@ -76,11 +77,11 @@
 }
 
 .gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500;
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-[#FF4D94];
 }
 
 .gradient-bg {
-  @apply bg-gradient-to-r from-indigo-600 to-violet-700;
+  @apply bg-gradient-to-r from-indigo-600 to-[#FF4D94];
 }
 
 /* Background Systems */
