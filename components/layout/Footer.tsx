@@ -52,7 +52,7 @@ export default function Footer() {
                 placeholder="Email address"
                 className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder:text-slate-600"
               />
-              <button className="bg-indigo-600 text-white px-4 py-3 rounded-xl text-sm font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/20 active:scale-95">
+              <button className="bg-[#ff4d94] text-white px-4 py-3 rounded-xl text-sm font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/20 active:scale-95">
                 Join Now
               </button>
             </div>

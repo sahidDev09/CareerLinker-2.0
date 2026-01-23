@@ -67,12 +67,12 @@ export default function Navbar() {
       <div ref={navRef} className="p-4">
         <div 
           ref={navContainerRef}
-          className="mx-auto max-w-7xl bg-white/10 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.12)] rounded-3xl px-4 md:px-8 flex items-center justify-between"
+          className="mx-auto max-w-7xl bg-white/10 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.12)] rounded-3xl py-2 px-4 md:px-8 flex items-center justify-between"
         >
           {/* Logo */}
           <div ref={logoRef}>
             <Link href="/" className="flex items-center space-x-2 group">
-              <Image src="/assests/careerLinkerBig.png" alt="Logo" width={200} height={200} className="h-16 object-contain"/>
+              <Image src="/assests/careerLinkerBig.png" alt="Logo" width={200} height={200} className="h-14 object-contain"/>
             </Link>
           </div>
 
