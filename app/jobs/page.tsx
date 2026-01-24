@@ -3,8 +3,11 @@
 import { FadeIn, StaggerContainer } from "@/components/shared/Motion";
 import JobCard from "@/components/jobs/JobCard";
 import JobFilter from "@/components/jobs/JobFilter";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X } from "lucide-react";
+import gsap from "gsap";
 
 interface AppliedProfile {
   id: string;
@@ -42,6 +45,15 @@ export default function JobsPage() {
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
   const [displayCount, setDisplayCount] = useState(6);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Open sidebar by default on desktop
+    if (window.innerWidth > 1024) {
+      setIsSidebarOpen(true);
+    }
+  }, []);
 
   const supabase = useMemo(() => createClient(), []);
 
@@ -65,6 +77,35 @@ export default function JobsPage() {
 
     fetchJobs();
   }, [supabase]);
+
+  useEffect(() => {
+    if (isSidebarOpen && sidebarRef.current) {
+      gsap.fromTo(
+        sidebarRef.current.querySelectorAll(".filter-section"),
+        { opacity: 0, y: 20 },
+        { 
+          opacity: 1, 
+          y: 0, 
+          duration: 0.5, 
+          stagger: 0.1, 
+          ease: "power2.out",
+          delay: 0.2 
+        }
+      );
+    }
+  }, [isSidebarOpen]);
+
+  useEffect(() => {
+    const filters = document.querySelectorAll(".filter-section label");
+    filters.forEach(filter => {
+      filter.addEventListener("mouseenter", () => {
+        gsap.to(filter, { x: 5, duration: 0.3, ease: "power2.out" });
+      });
+      filter.addEventListener("mouseleave", () => {
+        gsap.to(filter, { x: 0, duration: 0.3, ease: "power2.out" });
+      });
+    });
+  }, []);
 
   const filteredJobs = useMemo(() => {
     let result = [...jobs];
@@ -111,39 +152,64 @@ export default function JobsPage() {
   }, [filteredJobs, displayCount]);
 
   return (
-    <div className="container mx-auto px-4 md:px-6 py-12">
-      <div className="flex flex-col space-y-4 mb-16">
-        <FadeIn direction="up">
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4">
-            Find your <span className="text-[#ff4d94]">next role</span>
-          </h1>
-          <p className="text-slate-400 max-w-2xl text-lg md:text-xl">
-            Browse through thousands of job opportunities across different industries and locations.
-          </p>
-        </FadeIn>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+    <div className="container mx-auto py-12">
+      <div className="flex flex-col lg:flex-row gap-8 relative">
         {/* Sidebar Filters */}
-        <aside className="lg:col-span-3">
-          <div className="sticky top-24">
-            <JobFilter 
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              locationQuery={locationQuery}
-              setLocationQuery={setLocationQuery}
-              selectedTypes={selectedTypes}
-              setSelectedTypes={setSelectedTypes}
-            />
-          </div>
-        </aside>
+        <AnimatePresence mode="wait">
+          {isSidebarOpen && (
+            <motion.aside
+              initial={{ x: -300, opacity: 0, width: 0 }}
+              animate={{ x: 0, opacity: 1, width: "auto" }}
+              exit={{ x: -300, opacity: 0, width: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="lg:w-80 flex-shrink-0"
+              ref={sidebarRef}
+            >
+              <div className="sticky top-24 bg-white/5 p-6 rounded-[2rem] border border-white/10 backdrop-blur-xl">
+                <div className="flex items-center justify-between mb-8 lg:hidden">
+                  <h2 className="text-xl font-bold text-white">Filters</h2>
+                  <button 
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="p-2 bg-white/5 rounded-full text-slate-400 hover:text-white transition-colors"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+                <JobFilter 
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                  locationQuery={locationQuery}
+                  setLocationQuery={setLocationQuery}
+                  selectedTypes={selectedTypes}
+                  setSelectedTypes={setSelectedTypes}
+                />
+              </div>
+            </motion.aside>
+          )}
+        </AnimatePresence>
 
         {/* Job Listings */}
-        <div className="lg:col-span-9 space-y-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-            <p className="text-slate-400 font-medium text-lg">
-              Showing <span className="text-white font-bold">{filteredJobs.length}</span> results
-            </p>
+        <div className="flex-1 space-y-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                className={`p-3 rounded-2xl border transition-all duration-300 flex items-center gap-2 font-bold ${
+                  isSidebarOpen 
+                    ? "bg-[#ff4d94]/10 border-[#ff4d94]/20 text-[#ff4d94]" 
+                    : "bg-white/5 border-white/10 text-slate-300 hover:border-[#ff4d94]/50 hover:bg-white/10"
+                }`}
+              >
+                {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+                <span className="hidden sm:inline">{isSidebarOpen ? "Hide Filters" : "Show Filters"}</span>
+              </button>
+              
+              <div className="h-10 w-[1px] bg-white/10 hidden sm:block" />
+              
+              <p className="text-slate-400 font-medium text-lg">
+                Showing <span className="text-white font-bold">{filteredJobs.length}</span> results
+              </p>
+            </div>
             <div className="flex items-center space-x-3">
               <span className="text-slate-500 text-sm font-medium">Sort by:</span>
               <select 
@@ -159,8 +225,12 @@ export default function JobsPage() {
           </div>
 
           <StaggerContainer 
-            key={`${searchQuery}-${locationQuery}-${selectedTypes.join(',')}-${sortOrder}`} 
-            className="grid grid-cols-1 md:grid-cols-2 gap-8"
+            key={`${searchQuery}-${locationQuery}-${selectedTypes.join(',')}-${sortOrder}-${isSidebarOpen}`} 
+            className={`grid gap-8 transition-all duration-500 ${
+              isSidebarOpen 
+                ? "grid-cols-1 md:grid-cols-2" 
+                : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+            }`}
           >
             {loading ? (
               // Loading placeholders
