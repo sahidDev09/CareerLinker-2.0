@@ -48,13 +48,6 @@ export default function JobsPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    // Open sidebar by default on desktop
-    if (window.innerWidth > 1024) {
-      setIsSidebarOpen(true);
-    }
-  }, []);
-
   const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
