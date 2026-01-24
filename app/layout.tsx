@@ -4,6 +4,7 @@ import { Outfit } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { Toaster } from "sonner";
 import { dark } from "@clerk/themes";
 
 const outfit = Outfit({
@@ -37,6 +38,7 @@ export default function RootLayout({
               {children}
             </main>
             <Footer />
+            <Toaster position="top-right" richColors theme="dark" />
           </SmoothScroll>
         </body>
       </html>
