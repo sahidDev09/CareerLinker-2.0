@@ -7,14 +7,15 @@ import {
   Clock, 
   XCircle, 
   Calendar, 
-  FileText, 
-  ChevronRight,
-  TrendingUp,
-  MapPin,
   ExternalLink,
   Play
 } from "lucide-react";
 import Link from "next/link";
+import { useState, useEffect, useMemo } from "react";
+import { useUser } from "@clerk/nextjs";
+import { createClient } from "@/lib/supabase/client";
+import { calculateProfileCompleteness } from "@/lib/profile-utils";
+
 
 const stats = [
   { label: "Applied Jobs", value: 12, icon: Briefcase, color: "text-blue-400", bg: "bg-blue-400/10" },
@@ -64,13 +65,50 @@ const upcomingInterviews = [
 ];
 
 export default function CandidateDashboard() {
+  const { user, isLoaded } = useUser();
+  const [profile, setProfile] = useState<any>(null);
+  const supabase = useMemo(() => createClient(), []);
+
+  useEffect(() => {
+    async function fetchProfile() {
+      if (!isLoaded || !user) return;
+      
+      try {
+        const { data } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+
+        if (data) {
+          setProfile({
+            ...data,
+            imageUrl: data.image_url || user.imageUrl,
+            resumeUrl: data.resume_url,
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+      } finally {
+        // loading finished
+      }
+    }
+
+    fetchProfile();
+  }, [user, isLoaded, supabase]);
+
+  const { percentage, nextSteps, completedSteps } = useMemo(() => {
+    return calculateProfileCompleteness(profile);
+  }, [profile]);
+
+
   return (
     <div className="container mx-auto px-4 md:px-6 py-12">
       <FadeIn direction="up">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div className="space-y-2">
             <h1 className="text-3xl font-extrabold tracking-tight">Welcome back, <span className="gradient-text">Sahid!</span></h1>
-            <p className="text-slate-400">Here's an overview of your job applications and upcoming interviews.</p>
+            <p className="text-slate-400">Here&apos;s an overview of your job applications and upcoming interviews.</p>
           </div>
           <Link 
             href="/jobs" 
@@ -189,25 +227,30 @@ export default function CandidateDashboard() {
             <h3 className="font-bold mb-4">Profile Completeness</h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-400 font-medium">Almost there!</span>
-                <span className="font-bold text-[#FF4D94]">85%</span>
+                <span className="text-slate-400 font-medium">
+                  {percentage === 100 ? "Perfect Profile!" : percentage > 70 ? "Almost there!" : "Keep going!"}
+                </span>
+                <span className="font-bold text-[#FF4D94]">{percentage}%</span>
               </div>
               <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden">
-                <div className="h-full bg-[#FF4D94] rounded-full shadow-[0_0_10px_rgba(255,77,148,0.5)]" style={{ width: "85%" }}></div>
+                <div 
+                  className="h-full bg-[#FF4D94] rounded-full shadow-[0_0_10px_rgba(255,77,148,0.5)] transition-all duration-1000 ease-out" 
+                  style={{ width: `${percentage}%` }}
+                ></div>
               </div>
               <div className="space-y-2 pt-2">
-                <div className="flex items-center text-sm text-green-600">
-                  <CheckCircle2 size={16} className="mr-2" />
-                  <span>Contact info added</span>
-                </div>
-                <div className="flex items-center text-sm text-green-600">
-                  <CheckCircle2 size={16} className="mr-2" />
-                  <span>Resume uploaded</span>
-                </div>
-                <div className="flex items-center text-sm text-slate-400">
-                  <Clock size={16} className="mr-2" />
-                  <span>Add work experience</span>
-                </div>
+                {completedSteps.slice(0, 2).map((step) => (
+                  <div key={step.id} className="flex items-center text-sm text-emerald-400">
+                    <CheckCircle2 size={16} className="mr-2" />
+                    <span>{step.label}</span>
+                  </div>
+                ))}
+                {nextSteps.slice(0, 2).map((step) => (
+                  <div key={step.id} className="flex items-center text-sm text-slate-400">
+                    <Clock size={16} className="mr-2" />
+                    <span>{step.label}</span>
+                  </div>
+                ))}
               </div>
               <Link 
                 href="/dashboard/candidate/profile"

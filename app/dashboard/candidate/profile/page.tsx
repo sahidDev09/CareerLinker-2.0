@@ -18,12 +18,15 @@ import {
   ChevronRight,
   Sparkles,
   Zap,
-  CheckCircle2
+  CheckCircle2,
+  Clock
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useUser } from "@clerk/nextjs";
 import { Info } from "lucide-react";
+import { calculateProfileCompleteness } from "@/lib/profile-utils";
+
 
 type Experience = {
   id: string;
@@ -207,22 +210,9 @@ export default function ProfilePage() {
   };
 
 
-  // Calculate progress
-  const progress = useMemo(() => {
-    const totalFields = 9;
-    let filledFields = 0;
-
-    if (profile.name) filledFields++;
-    if (profile.skills.length > 0) filledFields++;
-    if (profile.experiences.length > 0) filledFields++;
-    if (profile.education.length > 0) filledFields++;
-    if (profile.certifications.length > 0) filledFields++;
-    if (profile.awards.length > 0) filledFields++;
-    if (profile.projects.length > 0) filledFields++;
-    if (profile.resumeUrl) filledFields++;
-    if (profile.imageUrl) filledFields++;
-
-    return Math.round((filledFields / totalFields) * 100);
+  // Calculate completeness stats
+  const { percentage, nextSteps } = useMemo(() => {
+    return calculateProfileCompleteness(profile);
   }, [profile]);
 
   const tabs = [
@@ -303,12 +293,12 @@ export default function ProfilePage() {
           <div className="glass p-6 rounded-2xl w-full md:w-80">
             <div className="flex items-center justify-between mb-3 text-sm">
               <span className="text-slate-400 font-medium">Completion Progress</span>
-              <span className="font-bold text-[#FF4D94]">{progress}%</span>
+              <span className="font-bold text-[#FF4D94]">{percentage}%</span>
             </div>
             <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-gradient-to-r from-indigo-500 to-[#FF4D94] transition-all duration-700 ease-out shadow-[0_0_15px_rgba(255,77,148,0.4)]"
-                style={{ width: `${progress}%` }}
+                style={{ width: `${percentage}%` }}
               ></div>
             </div>
           </div>
@@ -336,13 +326,38 @@ export default function ProfilePage() {
               ))}
             </nav>
             
-            <div className="mt-8 p-4 bg-white/5 rounded-2xl border border-white/5">
+            {nextSteps.length > 0 && (
+              <div className="mt-4 p-4 bg-amber-500/5 rounded-2xl border border-amber-500/10">
+                <div className="flex items-center gap-2 text-amber-500 font-bold mb-3 text-sm">
+                  <Clock size={16} />
+                  <span>Remaining Steps</span>
+                </div>
+                <div className="space-y-2">
+                  {nextSteps.slice(0, 3).map((step) => (
+                    <div key={step.id} className="flex items-center gap-2 text-[11px] text-slate-400">
+                      <div className="w-1 h-1 rounded-full bg-amber-500/50" />
+                      {step.label}
+                    </div>
+                  ))}
+                  {nextSteps.length > 3 && (
+                    <div className="text-[10px] text-slate-500 pl-3">
+                      + {nextSteps.length - 3} more items
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="mt-4 p-4 bg-emerald-500/5 rounded-2xl border border-emerald-500/10">
               <div className="flex items-center gap-2 text-emerald-400 font-bold mb-2 text-sm">
                 <Sparkles size={16} />
                 <span>AI Profile Tip</span>
               </div>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Add at least 3 highlighted projects to increase your visibility to recruiters by 40%.
+                {nextSteps.length === 0 
+                  ? "Your profile is perfect! You're 3x more likely to be noticed by top recruiters."
+                  : `Complete your ${nextSteps[0]?.label.toLowerCase()} to increase visibility by ${nextSteps[0]?.weight * 2}%.`
+                }
               </p>
             </div>
           </div>
