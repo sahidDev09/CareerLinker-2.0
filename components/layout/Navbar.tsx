@@ -121,17 +121,13 @@ export default function Navbar() {
                   }}
                 >
                     <UserButton.MenuItems>
+                      <UserButton.Action label="manageAccount" />
                       <UserButton.Link 
                         label="Saved Jobs" 
                         labelIcon={<Bookmark size={16} />} 
                         href="/dashboard/candidate/saved" 
                       />
-                      <UserButton.Link 
-                        label="Applied Jobs" 
-                        labelIcon={<Briefcase size={16} />} 
-                        href="/dashboard/candidate/applications" 
-                      />
-                      <UserButton.Action label="manageAccount" />
+
                     </UserButton.MenuItems>
                 </UserButton>
               </div>

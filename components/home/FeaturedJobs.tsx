@@ -1,78 +1,60 @@
 "use client";
 
+import { useEffect, useState, useMemo } from "react";
 import { FadeIn, StaggerContainer } from "@/components/shared/Motion";
 import JobCard from "@/components/jobs/JobCard";
+import { createClient } from "@/lib/supabase/client";
 
-const featuredJobs = [
-  {
-    title: "Sneaker Designer",
-    company: "Nike Indonesia",
-    postedAt: "24 Mar 2024",
-    salary: "$300/hr",
-    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/a/a6/Logo_NIKE.svg",
-    bgColor: "bg-[#f9f5ff]",
-    dotColor: "text-pink-400",
-    appliedCount: 45,
-    avatars: ["https://i.pravatar.cc/100?u=a", "https://i.pravatar.cc/100?u=b", "https://i.pravatar.cc/100?u=c"]
-  },
-  {
-    title: "React Developer",
-    company: "Mail Chip",
-    postedAt: "12 Mar 2024",
-    salary: "$420/hr",
-    logoUrl: "https://www.edigitalagency.com.au/wp-content/uploads/new-mailchimp-logo-vertical-black.png",
-    bgColor: "bg-[#f6fcf1]",
-    dotColor: "text-red-400",
-    appliedCount: 128,
-    avatars: ["https://i.pravatar.cc/100?u=d", "https://i.pravatar.cc/100?u=e", "https://i.pravatar.cc/100?u=f"]
-  },
-  {
-    title: "Product Designer",
-    company: "Figma",
-    postedAt: "26 Mar 2024",
-    salary: "$213/hr",
-    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg",
-    bgColor: "bg-[#fff9ed]",
-    dotColor: "text-pink-400",
-    appliedCount: 89,
-    avatars: ["https://i.pravatar.cc/100?u=g", "https://i.pravatar.cc/100?u=h", "https://i.pravatar.cc/100?u=i"]
-  },
-  {
-    title: "Senior Arkeolog",
-    company: "Google Map",
-    postedAt: "12 Mar 2024",
-    salary: "$1200/hr",
-    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/a/aa/Google_Maps_icon_%282020%29.svg",
-    bgColor: "bg-slate-50",
-    dotColor: "text-pink-400",
-    appliedCount: 12,
-    avatars: ["https://i.pravatar.cc/100?u=j", "https://i.pravatar.cc/100?u=k", "https://i.pravatar.cc/100?u=l"]
-  },
-  {
-    title: "Chef Leader",
-    company: "Finder",
-    postedAt: "08 Mar 2024",
-    salary: "$862/hr",
-    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/3/3c/Findercomau_logo.png",
-    bgColor: "bg-[#fff5f5]",
-    dotColor: "text-pink-400",
-    appliedCount: 56,
-    avatars: ["https://i.pravatar.cc/100?u=m", "https://i.pravatar.cc/100?u=n", "https://i.pravatar.cc/100?u=o"]
-  },
-  {
-    title: "Cleaning Service",
-    company: "Notion",
-    postedAt: "24 Mar 2024",
-    salary: "$80/hr",
-    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png",
-    bgColor: "bg-[#f0fbff]",
-    dotColor: "text-pink-400",
-    appliedCount: 234,
-    avatars: ["https://i.pravatar.cc/100?u=p", "https://i.pravatar.cc/100?u=q", "https://i.pravatar.cc/100?u=r"]
-  },
-];
+interface AppliedProfile {
+  id: string;
+  name: string;
+  avatar: string;
+}
+
+interface Job {
+  id: string;
+  title: string;
+  company_name: string;
+  company_logo: string;
+  location: string;
+  working_type: string;
+  salary: string;
+  salary_num: number;
+  applied_count: number;
+  applied_profiles: AppliedProfile[];
+  posted_at: string;
+}
 
 export default function FeaturedJobs() {
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+  const supabase = useMemo(() => createClient(), []);
+
+  useEffect(() => {
+    async function fetchFeaturedJobs() {
+      try {
+        setLoading(true);
+        // Fetch jobs that are high paying and most applied
+        const { data, error } = await supabase
+          .from('jobs')
+          .select('*')
+          .eq('status', 'active')
+          .order('applied_count', { ascending: false })
+          .order('salary_num', { ascending: false })
+          .limit(6);
+
+        if (error) throw error;
+        if (data) setJobs(data);
+      } catch (error) {
+        console.error("Error fetching featured jobs:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchFeaturedJobs();
+  }, [supabase]);
+
   return (
     <section className="container mx-auto py-5">
       <div className="text-center mb-18">
@@ -82,11 +64,30 @@ export default function FeaturedJobs() {
       </div>
 
       <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {featuredJobs.map((job, i) => (
-          <FadeIn key={job.title} direction="up" delay={i * 0.1}>
-            <JobCard {...job} variant="modern" />
-          </FadeIn>
-        ))}
+        {loading ? (
+          // Loading states
+          Array.from({ length: 6 }).map((_, i) => (
+            <div 
+              key={i} 
+              className="h-[380px] w-full bg-white/5 animate-pulse rounded-[2rem] border border-white/10" 
+            />
+          ))
+        ) : (
+          jobs.map((job, i) => (
+            <FadeIn key={job.id} direction="up" delay={i * 0.1}>
+              <JobCard 
+                title={job.title}
+                company={job.company_name}
+                postedAt={job.posted_at}
+                salary={job.salary}
+                logoUrl={job.company_logo}
+                appliedCount={job.applied_count}
+                avatars={job.applied_profiles?.map(p => p.avatar) || []}
+                variant="modern" 
+              />
+            </FadeIn>
+          ))
+        )}
       </StaggerContainer>
     </section>
   );

@@ -32,9 +32,9 @@ export default function JobFilter({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* Search Input */}
-      <div className="space-y-5">
+      <div className="space-y-5 filter-section">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
           <input 
@@ -58,8 +58,8 @@ export default function JobFilter({
         </div>
       </div>
 
-      <div className="hidden lg:block space-y-8 pt-4">
-        <div>
+      <div className="hidden lg:block space-y-10 pt-4">
+        <div className="filter-section">
           <h3 className="font-bold text-white mb-5 flex items-center text-lg">
             <Briefcase size={18} className="mr-2 text-[#ff4d94]" />
             Job Type
@@ -88,7 +88,7 @@ export default function JobFilter({
           </div>
         </div>
 
-        <div>
+        <div className="filter-section">
           <h3 className="font-bold text-white mb-5 flex items-center text-lg">
             <Filter size={18} className="mr-2 text-[#ff4d94]" />
             Experience Level
@@ -113,7 +113,7 @@ export default function JobFilter({
           </div>
         </div>
 
-        <div>
+        <div className="filter-section">
           <h3 className="font-bold text-white mb-5 flex items-center text-lg">
             <DollarSign size={18} className="mr-2 text-[#ff4d94]" />
             Salary Range
