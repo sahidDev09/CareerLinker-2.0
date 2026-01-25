@@ -156,6 +156,7 @@ export default function FeaturedJobs() {
           jobs.map((job, i) => (
             <FadeIn key={job.id} direction="up" delay={i * 0.1}>
               <JobCard 
+                id={job.id}
                 title={job.title}
                 company={job.company_name}
                 postedAt={job.posted_at}

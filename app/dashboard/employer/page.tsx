@@ -14,6 +14,10 @@ import {
   MessageSquare
 } from "lucide-react";
 import Link from "next/link";
+import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { Loader2 } from "lucide-react";
 
 const stats = [
   { label: "Active Jobs", value: 8, icon: Briefcase, color: "text-indigo-600", bg: "bg-indigo-50" },
@@ -50,6 +54,25 @@ const applicants = [
 ];
 
 export default function EmployerDashboard() {
+  const { user, isLoaded } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isLoaded && user) {
+      const role = user.publicMetadata?.role as string;
+      if (role !== "recruiter") {
+        router.push("/dashboard/candidate" + (window.location.search || ""));
+      }
+    }
+  }, [isLoaded, user, router]);
+
+  if (!isLoaded || (user && user.publicMetadata?.role !== "recruiter")) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-[#ff4d94] animate-spin" />
+      </div>
+    );
+  }
   return (
     <div className="container mx-auto px-4 md:px-6 py-12">
       <FadeIn direction="up">

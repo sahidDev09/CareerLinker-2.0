@@ -27,7 +27,7 @@ export default function Navbar() {
   const navLinks = [
     { name: "Find Jobs", href: "/jobs" },
     { name: "Companies", href: "#" },
-    { name: "Dashboard", href: "/dashboard/candidate" },
+    { name: "Dashboard", href: "/dashboard" },
   ];
 
   useLayoutEffect(() => {
@@ -109,9 +109,12 @@ export default function Navbar() {
             </SignedOut>
             <SignedIn>
               <div className="flex items-center space-x-6">
-                <button className="px-6 py-2.5 bg-[#ff4d94] text-white rounded-full text-sm font-bold shadow-[0_10px_20px_-5px_rgba(255,77,148,0.3)] hover:shadow-[0_15px_30px_-5px_rgba(255,77,148,0.4)] transition-all hover:-translate-y-1 active:scale-95">
+                <Link 
+                  href={role === "candidate" ? "/jobs" : "/post-job"}
+                  className="px-6 py-2.5 bg-[#ff4d94] text-white rounded-full text-sm font-bold shadow-[0_10px_20px_-5px_rgba(255,77,148,0.3)] hover:shadow-[0_15px_30px_-5px_rgba(255,77,148,0.4)] transition-all hover:-translate-y-1 active:scale-95"
+                >
                   {actionButtonText}
-                </button>
+                </Link>
                 <UserButton 
                   appearance={{
                     elements: {
@@ -122,12 +125,20 @@ export default function Navbar() {
                 >
                     <UserButton.MenuItems>
                       <UserButton.Action label="manageAccount" />
-                      <UserButton.Link 
-                        label="Saved Jobs" 
-                        labelIcon={<Bookmark size={16} />} 
-                        href="/dashboard/candidate/saved" 
-                      />
-
+                      {role === "candidate" && (
+                        <UserButton.Link 
+                          label="Saved Jobs" 
+                          labelIcon={<Bookmark size={16} />} 
+                          href="/dashboard/candidate/saved" 
+                        />
+                      )}
+                      {role === "recruiter" && (
+                        <UserButton.Link 
+                          label="Employer Dashboard" 
+                          labelIcon={<Briefcase size={16} />} 
+                          href="/dashboard/employer" 
+                        />
+                      )}
                     </UserButton.MenuItems>
                 </UserButton>
               </div>
@@ -189,23 +200,37 @@ export default function Navbar() {
                     }}
                   >
                     <UserButton.MenuItems>
-                      <UserButton.Link 
-                        label="Saved Jobs" 
-                        labelIcon={<Bookmark size={16} />} 
-                        href="/dashboard/candidate/saved" 
-                      />
-                      <UserButton.Link 
-                        label="Applied Jobs" 
-                        labelIcon={<Briefcase size={16} />} 
-                        href="/dashboard/candidate/applications" 
-                      />
+                      {role === "candidate" && (
+                        <>
+                          <UserButton.Link 
+                            label="Saved Jobs" 
+                            labelIcon={<Bookmark size={16} />} 
+                            href="/dashboard/candidate/saved" 
+                          />
+                          <UserButton.Link 
+                            label="Applied Jobs" 
+                            labelIcon={<Briefcase size={16} />} 
+                            href="/dashboard/candidate/applications" 
+                          />
+                        </>
+                      )}
+                      {role === "recruiter" && (
+                        <UserButton.Link 
+                          label="Employer Dashboard" 
+                          labelIcon={<Briefcase size={16} />} 
+                          href="/dashboard/employer" 
+                        />
+                      )}
                       <UserButton.Action label="manageAccount" />
                     </UserButton.MenuItems>
                   </UserButton>
                 </div>
-                <button className="w-full py-4 bg-[#ff4d94] text-white rounded-xl font-bold shadow-md active:scale-[0.98] transition-transform">
+                <Link 
+                  href={role === "candidate" ? "/jobs" : "/post-job"}
+                  className="w-full inline-block text-center py-4 bg-[#ff4d94] text-white rounded-xl font-bold shadow-md active:scale-[0.98] transition-transform"
+                >
                   {actionButtonText}
-                </button>
+                </Link>
               </div>
             </SignedIn>
           </div>

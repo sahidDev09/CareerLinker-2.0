@@ -136,6 +136,7 @@ export default function SavedJobsPage() {
           {savedJobs.map((item) => (
             <FadeIn key={item.job_id} direction="up">
               <JobCard 
+                id={item.job_id}
                 title={item.jobs.title}
                 company={item.jobs.company_name}
                 location={item.jobs.location}

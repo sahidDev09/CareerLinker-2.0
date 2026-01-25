@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { MapPin, Clock, DollarSign, Briefcase, Bookmark, ExternalLink, MoreHorizontal, ArrowRight, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 interface JobCardProps {
   title: string;
@@ -24,6 +25,7 @@ interface JobCardProps {
   onBookmarkToggle?: () => void;
   isBookmarking?: boolean;
   onDelete?: () => void;
+  id: string;
 }
 
 export default function JobCard({
@@ -45,6 +47,7 @@ export default function JobCard({
   onBookmarkToggle,
   isBookmarking = false,
   onDelete,
+  id,
 }: JobCardProps) {
   if (variant === "modern") {
     return (
@@ -144,9 +147,12 @@ export default function JobCard({
               <span className="text-[0.8rem] text-slate-500 font-medium">{postedAt}</span>
             </div>
           </div>
-          <button className="bg-[#ff4d94] text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-[#ff3385] transition-all hover:shadow-lg hover:shadow-pink-500/20">
+          <Link 
+            href={`/jobs/${id}`}
+            className="bg-[#ff4d94] text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-[#ff3385] transition-all hover:shadow-lg hover:shadow-pink-500/20"
+          >
             View
-          </button>
+          </Link>
         </div>
       </motion.div>
     );
@@ -231,10 +237,13 @@ export default function JobCard({
 
       <div className="flex items-center justify-between pt-6 border-t border-white/5">
         <span className="text-xs text-slate-500 font-medium">Posted {postedAt}</span>
-        <button className="flex items-center text-sm font-bold text-indigo-400 group-hover:underline">
+        <Link 
+          href={`/jobs/${id}`}
+          className="flex items-center text-sm font-bold text-indigo-400 group-hover:underline"
+        >
           View Details
           <ExternalLink size={14} className="ml-1.5" />
-        </button>
+        </Link>
       </div>
     </motion.div>
   );

@@ -319,6 +319,7 @@ export default function JobsPage() {
               displayedJobs.map((job) => (
                 <FadeIn key={job.id} direction="up">
                   <JobCard 
+                    id={job.id}
                     title={job.title}
                     company={job.company_name}
                     location={job.location}
