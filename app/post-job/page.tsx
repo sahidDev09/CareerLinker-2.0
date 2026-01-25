@@ -21,6 +21,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import RichTextEditor from "@/components/shared/RichTextEditor";
 
 export default function PostJobPage() {
   const { user } = useUser();
@@ -328,15 +329,13 @@ export default function PostJobPage() {
               Job Description
             </h2>
             
-            <div className="space-y-2">
+            <div className="space-y-4">
               <label className="text-sm font-bold text-slate-300 ml-1 block mb-2">Detailed Description</label>
-              <textarea 
-                rows={6}
+              <RichTextEditor 
                 value={formData.details}
-                onChange={(e) => setFormData({...formData, details: e.target.value})}
+                onChange={(value: string) => setFormData({...formData, details: value})}
                 placeholder="Describe the role, responsibilities, and requirements..."
-                className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl focus:ring-2 focus:ring-[#FF4D94]/50 outline-none transition-all placeholder:text-slate-600 resize-none"
-              ></textarea>
+              />
             </div>
 
             <div className="space-y-6">

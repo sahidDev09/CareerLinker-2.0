@@ -22,6 +22,7 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { FadeIn } from "@/components/shared/Motion";
+import DOMPurify from 'dompurify';
 
 interface Job {
   id: string;
@@ -282,19 +283,43 @@ export default function JobDetailPage() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-12">
             <FadeIn direction="up">
-              <div className="glass rounded-[2.5rem] p-8 md:p-12 space-y-10">
+              <div className="glass rounded-[2.5rem] p-8 md:p-12 space-y-10 overflow-hidden">
                 <section>
                   <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
                     <FileText className="text-[#ff4d94]" size={28} />
                     Job Description
                   </h2>
-                  <div className="prose prose-invert max-w-none text-slate-400 leading-relaxed text-lg">
-                    {job.details ? (
-                       <p className="whitespace-pre-line">{job.details}</p>
-                    ) : (
-                      <p>We are looking for a talented {job.title} to join our growing team at {job.company_name}. In this role, you will be responsible for building high-quality software solutions and collaborating with cross-functional teams to deliver exceptional user experiences.</p>
-                    )}
-                  </div>
+                  <div 
+                    className="prose prose-invert max-w-none text-slate-400 leading-relaxed text-lg rich-text-content break-words overflow-hidden"
+                    dangerouslySetInnerHTML={{ 
+                      __html: job.details 
+                        ? (typeof window !== 'undefined' ? DOMPurify.sanitize(job.details) : job.details)
+                        : "No description provided."
+                    }}
+                  />
+                  <style jsx global>{`
+                    .rich-text-content {
+                      word-break: break-word;
+                      overflow-wrap: break-word;
+                    }
+                    .rich-text-content ul {
+                      list-style-type: disc;
+                      padding-left: 1.5rem;
+                      margin-bottom: 1rem;
+                    }
+                    .rich-text-content ol {
+                      list-style-type: decimal;
+                      padding-left: 1.5rem;
+                      margin-bottom: 1rem;
+                    }
+                    .rich-text-content p {
+                      margin-bottom: 1rem;
+                    }
+                    .rich-text-content strong {
+                      color: white;
+                      font-weight: 700;
+                    }
+                  `}</style>
                 </section>
 
                 <section>
