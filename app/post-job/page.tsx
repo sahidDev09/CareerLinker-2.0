@@ -20,13 +20,28 @@ import Image from "next/image";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import RichTextEditor from "@/components/shared/RichTextEditor";
+import { useEffect, Suspense } from "react";
 
 export default function PostJobPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-[#ff4d94] animate-spin" />
+      </div>
+    }>
+      <PostJobForm />
+    </Suspense>
+  );
+}
+
+function PostJobForm() {
   const { user } = useUser();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const jobId = searchParams.get("jobId");
   const supabase = createClient();
   
   const [loading, setLoading] = useState(false);
@@ -90,6 +105,47 @@ export default function PostJobPage() {
     setSkills(skills.filter(s => s !== skillToRemove));
   };
 
+  useEffect(() => {
+    async function fetchJob() {
+      if (!jobId || !user) return;
+      
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from("jobs")
+          .select("*")
+          .eq("id", jobId)
+          .single();
+
+        if (error) throw error;
+        if (data.recruiter_id !== user.id) {
+          toast.error("Unauthorized to edit this job");
+          router.push("/dashboard/employer");
+          return;
+        }
+
+        setFormData({
+          title: data.title,
+          type: data.type,
+          working_type: data.working_type,
+          location: data.location,
+          salary: data.salary,
+          details: data.details,
+          company_name: data.company_name,
+          company_logo: data.company_logo
+        });
+        setSkills(data.skill_tags || []);
+      } catch (error) {
+        console.error("Error fetching job:", error);
+        toast.error("Failed to load job details");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchJob();
+  }, [jobId, user, supabase, router]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
@@ -104,11 +160,10 @@ export default function PostJobPage() {
 
     setLoading(true);
     try {
-      // Extract numeric value from salary string (e.g., "$120k" -> 120000)
       const salaryNum = parseInt(formData.salary.replace(/[^0-9]/g, "")) || 0;
       const adjustedSalaryNum = formData.salary.toLowerCase().includes('k') ? salaryNum * 1000 : salaryNum;
 
-      const { error } = await supabase.from("jobs").insert({
+      const jobData = {
         title: formData.title,
         details: formData.details,
         company_name: formData.company_name,
@@ -121,15 +176,55 @@ export default function PostJobPage() {
         skill_tags: skills,
         recruiter_id: user.id,
         recruiter_name: user.fullName || user.username || "Anonymous",
-        posted_at: new Date().toISOString(),
-        posted_date: new Date().toISOString(),
         status: 'active'
-      });
+      };
 
-      if (error) throw error;
+      if (jobId) {
+        const updatePayload = {
+          title: formData.title,
+          details: formData.details,
+          company_name: formData.company_name,
+          company_logo: formData.company_logo || `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.company_name)}&background=random`,
+          location: formData.location,
+          type: formData.type,
+          working_type: formData.working_type,
+          salary: formData.salary,
+          salary_num: adjustedSalaryNum,
+          skill_tags: skills,
+          status: 'active'
+        };
+        
+        const { error, data } = await supabase
+          .from("jobs")
+          .update(updatePayload)
+          .eq("id", jobId)
+          .select();
 
-      toast.success("Job posted successfully!");
-      router.push("/dashboard/employer");
+        if (error) throw error;
+        
+        if (!data || data.length === 0) {
+          const { data: checkData } = await supabase.from('jobs').select('id').eq('id', jobId).single();
+          if (checkData) {
+            throw new Error("Job exists but you don't have permission to update it (RLS). Please check your Supabase RLS policies.");
+          } else {
+            throw new Error("Job not found. It might have been deleted.");
+          }
+        }
+
+        toast.success("Job updated successfully!");
+      } else {
+        const { error } = await supabase
+          .from("jobs")
+          .insert({
+            ...jobData,
+            posted_at: new Date().toISOString(),
+            posted_date: new Date().toISOString(),
+          });
+        if (error) throw error;
+        toast.success("Job posted successfully!");
+      }
+
+      router.push("/dashboard/employer/my-jobs");
     } catch (error: unknown) {
       console.error("Error posting job:", error);
       toast.error(error instanceof Error ? error.message : "Failed to post job");
@@ -151,9 +246,9 @@ export default function PostJobPage() {
               Back to Dashboard
             </Link>
             <h1 className="text-4xl font-extrabold tracking-tight">
-              Post a <span className="gradient-text">New Job</span>
+              {jobId ? "Edit" : "Post a"} <span className="gradient-text">{jobId ? "Job Post" : "New Job"}</span>
             </h1>
-            <p className="text-slate-400 mt-2">Reach thousands of talented professionals today.</p>
+            <p className="text-slate-400 mt-2">{jobId ? "Update your job posting information." : "Reach thousands of talented professionals today."}</p>
           </div>
         </div>
 
@@ -401,11 +496,11 @@ export default function PostJobPage() {
               {loading ? (
                 <>
                   <Loader2 size={18} className="mr-2 animate-spin" />
-                  Publishing...
+                  {jobId ? "Updating..." : "Publishing..."}
                 </>
               ) : (
                 <>
-                  Publish Job Post
+                  {jobId ? "Update Job Post" : "Publish Job Post"}
                   <ChevronRight size={18} className="ml-2" />
                 </>
               )}
