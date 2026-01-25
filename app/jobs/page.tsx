@@ -8,6 +8,8 @@ import { createClient } from "@/lib/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import gsap from "gsap";
+import { useUser } from "@clerk/nextjs";
+import { toast } from "sonner";
 
 interface AppliedProfile {
   id: string;
@@ -46,8 +48,11 @@ export default function JobsPage() {
   const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
   const [displayCount, setDisplayCount] = useState(6);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
+  const [bookmarkingId, setBookmarkingId] = useState<string | null>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
 
+  const { user, isLoaded: isUserLoaded } = useUser();
   const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
@@ -70,6 +75,86 @@ export default function JobsPage() {
 
     fetchJobs();
   }, [supabase]);
+
+  // Fetch saved jobs for current user
+  useEffect(() => {
+    async function fetchSavedJobs() {
+      if (!isUserLoaded || !user) {
+        setSavedJobIds(new Set());
+        return;
+      }
+      
+      try {
+        const { data, error } = await supabase
+          .from('saved_jobs')
+          .select('job_id')
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+
+        if (data) {
+          setSavedJobIds(new Set(data.map(item => item.job_id)));
+        }
+      } catch (error) {
+        console.error("Error fetching saved jobs:", error);
+      }
+    }
+
+    fetchSavedJobs();
+  }, [user, isUserLoaded, supabase]);
+
+  const handleBookmarkToggle = async (jobId: string) => {
+    if (!user) {
+      toast.error("Please sign in to save jobs", {
+        description: "You need an account to bookmark opportunities.",
+        action: {
+          label: "Login",
+          onClick: () => window.location.href = "/sign-in"
+        }
+      });
+      return;
+    }
+
+    setBookmarkingId(jobId);
+    const isSaved = savedJobIds.has(jobId);
+
+    try {
+      if (isSaved) {
+        const { error } = await supabase
+          .from('saved_jobs')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('job_id', jobId);
+
+        if (error) throw error;
+        
+        setSavedJobIds(prev => {
+          const next = new Set(prev);
+          next.delete(jobId);
+          return next;
+        });
+        toast.success("Job removed from bookmarks");
+      } else {
+        const { error } = await supabase
+          .from('saved_jobs')
+          .insert({ user_id: user.id, job_id: jobId });
+
+        if (error) throw error;
+
+        setSavedJobIds(prev => {
+          const next = new Set(prev);
+          next.add(jobId);
+          return next;
+        });
+        toast.success("Job saved to your bookmarks!");
+      }
+    } catch (error) {
+      console.error("Error toggling bookmark:", error);
+      toast.error("Failed to update bookmark. Please try again.");
+    } finally {
+      setBookmarkingId(null);
+    }
+  };
 
   useEffect(() => {
     if (isSidebarOpen && sidebarRef.current) {
@@ -245,6 +330,9 @@ export default function JobsPage() {
                     appliedCount={job.applied_count}
                     avatars={job.applied_profiles?.map((p: AppliedProfile) => p.avatar)}
                     variant="modern" 
+                    isSaved={savedJobIds.has(job.id)}
+                    onBookmarkToggle={() => handleBookmarkToggle(job.id)}
+                    isBookmarking={bookmarkingId === job.id}
                   />
                 </FadeIn>
               ))

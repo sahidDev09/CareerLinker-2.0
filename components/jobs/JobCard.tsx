@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { MapPin, Clock, DollarSign, Briefcase, Bookmark, ExternalLink, MoreHorizontal, ArrowRight } from "lucide-react";
+import { MapPin, Clock, DollarSign, Briefcase, Bookmark, ExternalLink, MoreHorizontal, ArrowRight, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface JobCardProps {
@@ -20,6 +20,10 @@ interface JobCardProps {
   dotColor?: string;
   appliedCount?: number;
   avatars?: string[];
+  isSaved?: boolean;
+  onBookmarkToggle?: () => void;
+  isBookmarking?: boolean;
+  onDelete?: () => void;
 }
 
 export default function JobCard({
@@ -37,6 +41,10 @@ export default function JobCard({
   dotColor,
   appliedCount = 0,
   avatars = [],
+  isSaved = false,
+  onBookmarkToggle,
+  isBookmarking = false,
+  onDelete,
 }: JobCardProps) {
   if (variant === "modern") {
     return (
@@ -50,12 +58,41 @@ export default function JobCard({
       >
         {/* Top Actions */}
         <div className="flex items-center justify-between mb-5">
-          <button className="text-white/70 hover:text-pink-500 transition-colors">
-            <Bookmark size={24} strokeWidth={1.5} />
+          <button 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onBookmarkToggle?.();
+            }}
+            disabled={isBookmarking}
+            className={cn(
+              "transition-all duration-300",
+              isSaved ? "text-[#ff4d94] fill-[#ff4d94]" : "text-white/70 hover:text-[#ff4d94]",
+              isBookmarking && "opacity-50 cursor-wait"
+            )}
+          >
+            <Bookmark 
+              size={24} 
+              strokeWidth={1.5} 
+              className={cn(isSaved && "fill-current")}
+            />
           </button>
-          <div className={cn(dotColor || "text-[#ff4d94]")}>
-             <MoreHorizontal size={28} />
-          </div>
+          {onDelete ? (
+            <button 
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onDelete();
+              }}
+              className="p-2 text-slate-500 hover:text-rose-400 transition-colors bg-white/5 rounded-full"
+            >
+              <Trash2 size={20} />
+            </button>
+          ) : (
+            <div className={cn(dotColor || "text-[#ff4d94]")}>
+               <MoreHorizontal size={28} />
+            </div>
+          )}
         </div>
 
         {/* Title */}
@@ -142,8 +179,23 @@ export default function JobCard({
             <p className="text-slate-500 text-sm font-medium">{company}</p>
           </div>
         </div>
-        <button className="text-slate-500 hover:text-indigo-400 transition-colors">
-          <Bookmark size={20} />
+        <button 
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onBookmarkToggle?.();
+          }}
+          disabled={isBookmarking}
+          className={cn(
+            "transition-all duration-300",
+            isSaved ? "text-[#ff4d94]" : "text-slate-500 hover:text-indigo-400",
+            isBookmarking && "opacity-50 cursor-wait"
+          )}
+        >
+          <Bookmark 
+            size={20} 
+            className={cn(isSaved && "fill-current text-[#ff4d94]")}
+          />
         </button>
       </div>
 
