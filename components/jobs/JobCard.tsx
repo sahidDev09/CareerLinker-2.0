@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { MapPin, Clock, DollarSign, Briefcase, Bookmark, ExternalLink, MoreHorizontal, ArrowRight, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatSalary, formatRelativeTime } from "@/lib/utils";
 import Link from "next/link";
 
 interface JobCardProps {
@@ -13,6 +13,7 @@ interface JobCardProps {
   type?: string;
   salary: string;
   postedAt: string;
+  workingType?: string;
   logoUrl?: string;
   tags?: string[];
   isFeatured?: boolean;
@@ -35,6 +36,7 @@ export default function JobCard({
   type,
   salary,
   postedAt,
+  workingType,
   logoUrl,
   tags = [],
   isFeatured = false,
@@ -107,7 +109,21 @@ export default function JobCard({
 
         {/* Salary and Arrow */}
         <div className="flex items-center justify-between mb-6">
-          <span className="text-slate-400 text-lg font-medium">{salary}</span>
+          <div className="flex flex-col">
+            <span className="text-slate-400 text-lg font-medium">{formatSalary(salary)}</span>
+            <div className="flex gap-2 mt-1">
+              {workingType && (
+                <span className="text-[10px] bg-[#ff4d94]/10 px-2 py-0.5 rounded text-[#ff4d94] uppercase font-bold tracking-wider border border-[#ff4d94]/20">
+                  {workingType}
+                </span>
+              )}
+              {type && (
+                <span className="text-[10px] bg-indigo-500/10 px-2 py-0.5 rounded text-indigo-400 uppercase font-bold tracking-wider border border-indigo-500/20">
+                  {type}
+                </span>
+              )}
+            </div>
+          </div>
           <div className="hover:translate-x-1 transition-transform cursor-pointer">
             <ArrowRight size={22} className="text-white" />
           </div>
@@ -144,7 +160,7 @@ export default function JobCard({
             </div>
             <div className="flex flex-col">
               <span className="text-[0.95rem] font-bold text-white leading-none mb-1.5">{company}</span>
-              <span className="text-[0.8rem] text-slate-500 font-medium">{postedAt}</span>
+              <span className="text-[0.8rem] text-slate-500 font-medium">{formatRelativeTime(postedAt)}</span>
             </div>
           </div>
           <Link 
@@ -214,13 +230,19 @@ export default function JobCard({
         )}
         {type && (
           <div className="flex items-center text-sm text-slate-400">
-            <Clock size={16} className="mr-1.5 text-slate-500" />
+            <Clock size={16} className="mr-1.5 text-indigo-400" />
             {type}
+          </div>
+        )}
+        {workingType && (
+          <div className="flex items-center text-sm text-slate-400">
+            <Briefcase size={16} className="mr-1.5 text-[#ff4d94]" />
+            {workingType}
           </div>
         )}
         <div className="flex items-center text-sm text-slate-400">
           <DollarSign size={16} className="mr-1.5 text-slate-500" />
-          {salary}
+          {formatSalary(salary)}
         </div>
       </div>
 
@@ -236,7 +258,7 @@ export default function JobCard({
       </div>
 
       <div className="flex items-center justify-between pt-6 border-t border-white/5">
-        <span className="text-xs text-slate-500 font-medium">Posted {postedAt}</span>
+        <span className="text-xs text-slate-500 font-medium">Posted {formatRelativeTime(postedAt)}</span>
         <Link 
           href={`/jobs/${id}`}
           className="flex items-center text-sm font-bold text-indigo-400 group-hover:underline"

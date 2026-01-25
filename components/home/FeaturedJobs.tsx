@@ -20,6 +20,7 @@ interface Job {
   company_logo: string;
   location: string;
   working_type: string;
+  type: string;
   salary: string;
   salary_num: number;
   applied_count: number;
@@ -159,6 +160,8 @@ export default function FeaturedJobs() {
                 id={job.id}
                 title={job.title}
                 company={job.company_name}
+                type={job.type}
+                workingType={job.working_type}
                 postedAt={job.posted_at}
                 salary={job.salary}
                 logoUrl={job.company_logo}

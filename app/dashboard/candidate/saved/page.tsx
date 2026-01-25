@@ -140,7 +140,8 @@ export default function SavedJobsPage() {
                 title={item.jobs.title}
                 company={item.jobs.company_name}
                 location={item.jobs.location}
-                type={item.jobs.working_type}
+                type={item.jobs.type}
+                workingType={item.jobs.working_type}
                 salary={item.jobs.salary}
                 postedAt={item.jobs.posted_at}
                 logoUrl={item.jobs.company_logo}

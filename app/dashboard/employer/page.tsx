@@ -8,13 +8,12 @@ import {
   Briefcase, 
   Calendar, 
   Eye, 
-  MessageSquare,
   TrendingUp,
-  ExternalLink,
   LayoutGrid,
   List,
   MoreHorizontal,
-  ChevronRight
+  ChevronRight,
+  FileText
 } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
@@ -29,7 +28,7 @@ const stats = [
   { label: "Total Views", value: "4.2k", icon: Eye, color: "text-emerald-400", bg: "bg-emerald-400/10" },
 ];
 
-const applicants = [
+const INITIAL_APPLICANTS = [
   {
     id: 1,
     name: "Alex Rivera",
@@ -38,7 +37,8 @@ const applicants = [
     status: "Reviewing",
     experience: "8 yrs",
     email: "alex@example.com",
-    avatar: null
+    avatar: null,
+    resume: "#"
   },
   {
     id: 2,
@@ -48,7 +48,8 @@ const applicants = [
     status: "Shortlisted",
     experience: "5 yrs",
     email: "sarah@example.com",
-    avatar: null
+    avatar: null,
+    resume: "#"
   },
   {
     id: 3,
@@ -58,7 +59,8 @@ const applicants = [
     status: "Interviewing",
     experience: "4 yrs",
     email: "david@example.com",
-    avatar: null
+    avatar: null,
+    resume: "#"
   },
   {
     id: 4,
@@ -68,7 +70,8 @@ const applicants = [
     status: "Reviewing",
     experience: "3 yrs",
     email: "emma@example.com",
-    avatar: null
+    avatar: null,
+    resume: "#"
   },
   {
     id: 5,
@@ -78,16 +81,42 @@ const applicants = [
     status: "Hired",
     experience: "10 yrs",
     email: "james@example.com",
-    avatar: null
+    avatar: null,
+    resume: "#"
   },
 ];
 
-const STAGES = ["Reviewing", "Shortlisted", "Interviewing", "Hired"];
+const STAGES = ["Pending", "Reviewing", "Shortlisted", "Interviewing", "Hired", "Rejected"];
+
+const STATUS_COLORS: Record<string, string> = {
+  Pending: "bg-slate-400/10 text-slate-400 border-slate-400/20",
+  Reviewing: "bg-blue-400/10 text-blue-400 border-blue-400/20",
+  Shortlisted: "bg-emerald-400/10 text-emerald-400 border-emerald-400/20",
+  Interviewing: "bg-purple-400/10 text-purple-400 border-purple-400/20",
+  Hired: "bg-[#FF4D94]/10 text-[#FF4D94] border-[#FF4D94]/20",
+  Rejected: "bg-red-400/10 text-red-400 border-red-400/20",
+};
+
+const STAGE_DOT_COLORS: Record<string, string> = {
+  Pending: "bg-slate-400",
+  Reviewing: "bg-blue-400",
+  Shortlisted: "bg-emerald-400",
+  Interviewing: "bg-purple-400",
+  Hired: "bg-[#FF4D94]",
+  Rejected: "bg-red-400",
+};
 
 export default function EmployerDashboard() {
   const { user, isLoaded } = useUser();
   const router = useRouter();
   const [view, setView] = useState<"list" | "board">("list");
+  const [applicants, setApplicants] = useState(INITIAL_APPLICANTS);
+
+  const handleStatusChange = (id: number, newStatus: string) => {
+    setApplicants(prev => prev.map(app => 
+      app.id === id ? { ...app, status: newStatus } : app
+    ));
+  };
 
   useEffect(() => {
     if (isLoaded && user) {
@@ -103,7 +132,7 @@ export default function EmployerDashboard() {
       acc[stage] = applicants.filter(app => app.status === stage);
       return acc;
     }, {} as Record<string, typeof applicants>);
-  }, []);
+  }, [applicants]);
 
   if (!isLoaded || (user && user.publicMetadata?.role !== "recruiter")) {
     return (
@@ -226,22 +255,26 @@ export default function EmployerDashboard() {
                           {app.role}
                         </td>
                         <td className="px-6 py-6 font-medium">
-                          <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                            app.status === "Shortlisted" ? "bg-emerald-400/10 text-emerald-400" :
-                            app.status === "Interviewing" ? "bg-purple-400/10 text-purple-400" :
-                            app.status === "Hired" ? "bg-[#FF4D94]/10 text-[#FF4D94]" :
-                            "bg-blue-400/10 text-blue-400"
-                          }`}>
-                            {app.status}
-                          </span>
+                          <select 
+                            value={app.status}
+                            onChange={(e) => handleStatusChange(app.id, e.target.value)}
+                            className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-transparent border cursor-pointer outline-none transition-all ${STATUS_COLORS[app.status]}`}
+                          >
+                            {STAGES.map(stage => (
+                              <option key={stage} value={stage} className="bg-[#1a1c2e] text-white">
+                                {stage}
+                              </option>
+                            ))}
+                          </select>
                         </td>
                         <td className="px-6 py-6 text-right">
                           <div className="flex items-center justify-end space-x-2">
-                            <button className="p-2 text-slate-400 hover:text-[#FF4D94] hover:bg-[#FF4D94]/10 rounded-lg transition-colors">
-                              <MessageSquare size={18} />
-                            </button>
-                            <button className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
-                              <ExternalLink size={18} />
+                            <button 
+                              className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-white bg-[#FF4D94]/10 hover:bg-[#FF4D94] border border-[#FF4D94]/20 hover:border-[#FF4D94] rounded-lg transition-all group/btn"
+                              onClick={() => window.open(app.resume, '_blank')}
+                            >
+                              <FileText size={14} className="text-[#FF4D94] group-hover/btn:text-white transition-colors" />
+                              View Resume
                             </button>
                           </div>
                         </td>
@@ -259,12 +292,7 @@ export default function EmployerDashboard() {
                 <div key={stage} className="flex flex-col gap-4 min-w-[300px]">
                   <div className="flex items-center justify-between px-2">
                     <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${
-                        stage === "Shortlisted" ? "bg-emerald-400" :
-                        stage === "Interviewing" ? "bg-purple-400" :
-                        stage === "Hired" ? "bg-[#FF4D94]" :
-                        "bg-blue-400"
-                      }`} />
+                       <div className={`w-2 h-2 rounded-full ${STAGE_DOT_COLORS[stage]}`} />
                       <h3 className="font-bold text-sm uppercase tracking-wider text-slate-300">{stage}</h3>
                       <span className="bg-white/5 px-2 py-0.5 rounded-full text-[10px] font-bold text-slate-500">
                         {groupedApplicants[stage]?.length || 0}
@@ -287,9 +315,25 @@ export default function EmployerDashboard() {
                               <h4 className="font-bold text-sm truncate group-hover:text-[#FF4D94] transition-colors">{app.name}</h4>
                               <p className="text-[10px] text-slate-400 truncate">{app.role}</p>
                             </div>
-                            <button className="text-slate-600 hover:text-white transition-colors">
-                              <MoreHorizontal size={14} />
-                            </button>
+                            <div className="relative group/more">
+                              <button className="text-slate-600 hover:text-white transition-colors p-1">
+                                <MoreHorizontal size={14} />
+                              </button>
+                              <div className="absolute right-0 top-full mt-1 hidden group-hover/more:block z-20 bg-[#1a1c2e] border border-white/10 rounded-xl shadow-2xl p-1 min-w-[120px]">
+                                {STAGES.map(s => (
+                                  <button
+                                    key={s}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleStatusChange(app.id, s);
+                                    }}
+                                    className={`w-full text-left px-3 py-1.5 text-[10px] font-bold uppercase rounded-lg hover:bg-white/5 transition-colors ${app.status === s ? 'text-[#FF4D94]' : 'text-slate-400'}`}
+                                  >
+                                    {s}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
                           </div>
                           
                           <div className="flex items-center justify-between mt-4 text-[10px] font-bold text-slate-500">
@@ -297,8 +341,20 @@ export default function EmployerDashboard() {
                               <Calendar size={12} />
                               {app.appliedDate}
                             </div>
-                            <div className="flex items-center gap-1 text-[#FF4D94] opacity-0 group-hover:opacity-100 transition-opacity">
-                              Details <ChevronRight size={10} />
+                            <div className="flex items-center gap-3">
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.open(app.resume, '_blank');
+                                }}
+                                className="flex items-center gap-1 text-[#FF4D94] opacity-0 group-hover:opacity-100 transition-opacity hover:underline"
+                              >
+                                <FileText size={12} />
+                                Resume
+                              </button>
+                              <div className="flex items-center gap-1 text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity">
+                                Details <ChevronRight size={10} />
+                              </div>
                             </div>
                           </div>
                         </div>
