@@ -12,9 +12,14 @@ import { useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
 
 interface AppliedProfile {
-  id: string;
-  name: string;
-  avatar: string;
+  user_id: string;
+  user_name: string;
+  user_email: string;
+  resume_url: string;
+  applied: boolean;
+  status: string;
+  avatar?: string;
+  applied_at: string;
 }
 
 interface Job {
@@ -330,7 +335,7 @@ export default function JobsPage() {
                     logoUrl={job.company_logo}
                     tags={job.skill_tags}
                     appliedCount={job.applied_count}
-                    avatars={job.applied_profiles?.map((p: AppliedProfile) => p.avatar)}
+                    avatars={job.applied_profiles?.map((p: AppliedProfile) => p.avatar).filter((a): a is string => !!a) || []}
                     variant="modern" 
                     isSaved={savedJobIds.has(job.id)}
                     onBookmarkToggle={() => handleBookmarkToggle(job.id)}

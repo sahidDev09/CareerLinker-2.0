@@ -10,9 +10,14 @@ import { toast } from "sonner";
 import JobCard from "@/components/jobs/JobCard";
 
 interface AppliedProfile {
-  id: string;
-  name: string;
-  avatar: string;
+  user_id: string;
+  user_name: string;
+  user_email: string;
+  resume_url: string;
+  applied: boolean;
+  status: string;
+  avatar?: string;
+  applied_at: string;
 }
 
 interface Job {
@@ -147,7 +152,7 @@ export default function SavedJobsPage() {
                 logoUrl={item.jobs.company_logo}
                 tags={item.jobs.skill_tags}
                 appliedCount={item.jobs.applied_count}
-                avatars={item.jobs.applied_profiles?.map(p => p.avatar) || []}
+                avatars={item.jobs.applied_profiles?.map(p => p.avatar).filter((a): a is string => !!a) || []}
                 variant="modern"
                 isSaved={true}
                 onBookmarkToggle={() => handleRemoveSaved(item.job_id)}
