@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import JobCard from "@/components/jobs/JobCard";
+import ConfirmDialog from "@/components/shared/ConfirmDialog";
 
 interface Job {
   id: string;
@@ -35,6 +36,8 @@ export default function MyJobsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [jobToDelete, setJobToDelete] = useState<string | null>(null);
   const supabase = createClient();
 
   useEffect(() => {
@@ -68,22 +71,37 @@ export default function MyJobsPage() {
     fetchMyJobs();
   }, [isLoaded, user, router, supabase]);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this job post?")) return;
+  const handleDelete = async () => {
+    if (!jobToDelete || !user) return;
 
     try {
-      const { error } = await supabase
+      setIsDeleting(true);
+      const { error, data } = await supabase
         .from('jobs')
         .delete()
-        .eq('id', id);
+        .eq('id', jobToDelete)
+        .select();
 
       if (error) throw error;
 
-      setJobs(prev => prev.filter(job => job.id !== id));
+      if (!data || data.length === 0) {
+        // If data is empty but no error, it means the row wasn't found or RLS blocked deletion
+        const { data: checkData } = await supabase.from('jobs').select('id').eq('id', jobToDelete).single();
+        if (checkData) {
+          throw new Error("Job exists but you don't have permission to delete it (RLS). Please check your Supabase RLS policies.");
+        } else {
+          throw new Error("Job not found. It might have been deleted already.");
+        }
+      }
+
+      setJobs(prev => prev.filter(job => job.id !== jobToDelete));
       toast.success("Job post deleted successfully");
     } catch (error) {
       console.error("Error deleting job:", error);
       toast.error("Failed to delete job post");
+    } finally {
+      setIsDeleting(false);
+      setJobToDelete(null);
     }
   };
 
@@ -165,7 +183,7 @@ export default function MyJobsPage() {
                 logoUrl={job.company_logo}
                 tags={job.skill_tags}
                 variant="modern"
-                onDelete={() => handleDelete(job.id)}
+                onDelete={() => setJobToDelete(job.id)}
                 onEdit={() => handleEdit(job.id)}
               />
             </ScaleIn>
@@ -194,6 +212,17 @@ export default function MyJobsPage() {
           </div>
         </FadeIn>
       )}
+
+      <ConfirmDialog 
+        isOpen={!!jobToDelete}
+        onClose={() => setJobToDelete(null)}
+        onConfirm={handleDelete}
+        title="Delete Job Post"
+        description="Are you sure you want to delete this job post? This action cannot be undone and will remove all associated applicant data."
+        isLoading={isDeleting}
+        confirmText="Yes, Delete"
+        cancelText="Keep Job"
+      />
     </div>
   );
 }

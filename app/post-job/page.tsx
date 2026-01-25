@@ -180,11 +180,37 @@ function PostJobForm() {
       };
 
       if (jobId) {
-        const { error } = await supabase
+        const updatePayload = {
+          title: formData.title,
+          details: formData.details,
+          company_name: formData.company_name,
+          company_logo: formData.company_logo || `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.company_name)}&background=random`,
+          location: formData.location,
+          type: formData.type,
+          working_type: formData.working_type,
+          salary: formData.salary,
+          salary_num: adjustedSalaryNum,
+          skill_tags: skills,
+          status: 'active'
+        };
+        
+        const { error, data } = await supabase
           .from("jobs")
-          .update(jobData)
-          .eq("id", jobId);
+          .update(updatePayload)
+          .eq("id", jobId)
+          .select();
+
         if (error) throw error;
+        
+        if (!data || data.length === 0) {
+          const { data: checkData } = await supabase.from('jobs').select('id').eq('id', jobId).single();
+          if (checkData) {
+            throw new Error("Job exists but you don't have permission to update it (RLS). Please check your Supabase RLS policies.");
+          } else {
+            throw new Error("Job not found. It might have been deleted.");
+          }
+        }
+
         toast.success("Job updated successfully!");
       } else {
         const { error } = await supabase
