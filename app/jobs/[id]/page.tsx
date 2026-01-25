@@ -23,6 +23,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { FadeIn } from "@/components/shared/Motion";
 import DOMPurify from 'dompurify';
+import { formatSalary, formatRelativeTime } from "@/lib/utils";
 
 interface Job {
   id: string;
@@ -230,11 +231,14 @@ export default function JobDetailPage() {
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
             <div className="">
               <FadeIn direction="up">
-                <div className="flex items-center gap-4 mb-4">
+                <div className="flex items-center gap-3 mb-4">
                   <span className="px-4 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs font-bold text-[#ff4d94] tracking-wider uppercase">
                     {job.working_type}
                   </span>
-                  <span className="text-slate-500 text-sm font-medium">Posted {job.posted_at}</span>
+                  <span className="px-4 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs font-bold text-indigo-400 tracking-wider uppercase">
+                    {job.type}
+                  </span>
+                  <span className="text-slate-500 text-sm font-medium">Posted {formatRelativeTime(job.posted_at)}</span>
                 </div>
                 <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-4 leading-[1.1]">
                   {job.title}
@@ -256,7 +260,7 @@ export default function JobDetailPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <DollarSign size={22} className="text-emerald-400" />
-                    <span>{job.salary}</span>
+                    <span>{formatSalary(job.salary)}</span>
                   </div>
                 </div>
               </FadeIn>

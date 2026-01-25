@@ -323,7 +323,8 @@ export default function JobsPage() {
                     title={job.title}
                     company={job.company_name}
                     location={job.location}
-                    type={job.working_type}
+                    type={job.type}
+                    workingType={job.working_type}
                     salary={job.salary}
                     postedAt={job.posted_at}
                     logoUrl={job.company_logo}

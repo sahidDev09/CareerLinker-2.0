@@ -120,7 +120,8 @@ export default function PostJobPage() {
         skill_tags: skills,
         recruiter_id: user.id,
         recruiter_name: user.fullName || user.username || "Anonymous",
-        posted_at: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        posted_at: new Date().toISOString(),
+        posted_date: new Date().toISOString(),
         status: 'active'
       });
 
