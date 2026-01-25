@@ -19,72 +19,11 @@ import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { formatRelativeTime } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
-const stats = [
-  { label: "Active Jobs", value: 8, icon: Briefcase, color: "text-blue-400", bg: "bg-blue-400/10" },
-  { label: "New Applicants", value: 124, icon: Users, color: "text-indigo-400", bg: "bg-indigo-400/10" },
-  { label: "Interviews", value: 12, icon: Calendar, color: "text-[#FF4D94]", bg: "bg-[#FF4D94]/10" },
-  { label: "Total Views", value: "4.2k", icon: Eye, color: "text-emerald-400", bg: "bg-emerald-400/10" },
-];
-
-const INITIAL_APPLICANTS = [
-  {
-    id: 1,
-    name: "Alex Rivera",
-    role: "Senior Frontend Engineer",
-    appliedDate: "Today",
-    status: "Reviewing",
-    experience: "8 yrs",
-    email: "alex@example.com",
-    avatar: null,
-    resume: "#"
-  },
-  {
-    id: 2,
-    name: "Sarah Chen",
-    role: "Product Designer",
-    appliedDate: "Yesterday",
-    status: "Shortlisted",
-    experience: "5 yrs",
-    email: "sarah@example.com",
-    avatar: null,
-    resume: "#"
-  },
-  {
-    id: 3,
-    name: "David Miller",
-    role: "Backend Developer",
-    appliedDate: "Jan 15, 2026",
-    status: "Interviewing",
-    experience: "4 yrs",
-    email: "david@example.com",
-    avatar: null,
-    resume: "#"
-  },
-  {
-    id: 4,
-    name: "Emma Wilson",
-    role: "UX Researcher",
-    appliedDate: "Jan 14, 2026",
-    status: "Reviewing",
-    experience: "3 yrs",
-    email: "emma@example.com",
-    avatar: null,
-    resume: "#"
-  },
-  {
-    id: 5,
-    name: "James Taylor",
-    role: "Product Manager",
-    appliedDate: "Jan 12, 2026",
-    status: "Hired",
-    experience: "10 yrs",
-    email: "james@example.com",
-    avatar: null,
-    resume: "#"
-  },
-];
 
 const STAGES = ["Pending", "Reviewing", "Shortlisted", "Interviewing", "Hired", "Rejected"];
 
@@ -106,26 +45,122 @@ const STAGE_DOT_COLORS: Record<string, string> = {
   Rejected: "bg-red-400",
 };
 
+interface Applicant {
+  id: string;
+  name: string;
+  role: string;
+  appliedDate: string;
+  status: string;
+  experience: string;
+  email: string;
+  avatar: string | null;
+  resume: string;
+}
+
+interface Job {
+  id: string;
+  title: string;
+  status: string;
+  views?: number;
+}
+
 export default function EmployerDashboard() {
   const { user, isLoaded } = useUser();
   const router = useRouter();
   const [view, setView] = useState<"list" | "board">("list");
-  const [applicants, setApplicants] = useState(INITIAL_APPLICANTS);
+  const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
 
-  const handleStatusChange = (id: number, newStatus: string) => {
-    setApplicants(prev => prev.map(app => 
-      app.id === id ? { ...app, status: newStatus } : app
-    ));
+  const handleStatusChange = async (id: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('job_applications')
+        .update({ status: newStatus })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setApplicants((prev: Applicant[]) => prev.map((app: Applicant) => 
+        app.id === id ? { ...app, status: newStatus } : app
+      ));
+      toast.success(`Status updated to ${newStatus}`);
+    } catch (error) {
+      console.error("Error updating status:", error);
+      toast.error("Failed to update status");
+    }
   };
 
   useEffect(() => {
-    if (isLoaded && user) {
+    async function fetchData() {
+      if (!isLoaded || !user) return;
+      
       const role = user.publicMetadata?.role as string;
       if (role !== "recruiter") {
         router.push("/dashboard/candidate" + (window.location.search || ""));
+        return;
+      }
+
+      try {
+        setLoading(true);
+        // 1. Fetch all jobs by this recruiter
+        const { data: jobsData, error: jobsError } = await supabase
+          .from('jobs')
+          .select('*')
+          .eq('recruiter_id', user.id);
+
+        if (jobsError) throw jobsError;
+        setJobs(jobsData || []);
+
+        // 2. Fetch all applications for these jobs
+        const { data: appsData, error: appsError } = await supabase
+          .from('job_applications')
+          .select('*, profiles(*), jobs(*)')
+          .in('job_id', (jobsData || []).map(j => j.id));
+
+        if (appsError) throw appsError;
+
+        // Map applications to the format expected by the UI
+        const mappedApps = (appsData || []).map(app => ({
+          id: app.id,
+          name: app.profiles?.name || "Unknown Candidate",
+          role: app.jobs?.title || "Unknown Role",
+          appliedDate: app.created_at ? formatRelativeTime(app.created_at) : "Unknown",
+          status: app.status || "Pending",
+          experience: app.profiles?.experiences?.[0]?.role 
+            ? `${app.profiles.experiences[0].role} at ${app.profiles.experiences[0].company}` 
+            : "No experience listed",
+          email: app.profiles?.email || "",
+          avatar: app.profiles?.image_url || null,
+          resume: app.resume_url || app.profiles?.resume_url || "#"
+        }));
+
+        setApplicants(mappedApps);
+      } catch (error) {
+        console.error("Error fetching employer dashboard data:", error);
+        // toast.error("Failed to load dashboard data");
+      } finally {
+        setLoading(false);
       }
     }
-  }, [isLoaded, user, router]);
+
+    fetchData();
+  }, [isLoaded, user, router, supabase]);
+
+  const stats = useMemo(() => {
+    const activeJobsCount = jobs.filter((j: Job) => j.status === 'active').length;
+    const totalApplicants = applicants.length;
+    const interviewsCount = applicants.filter((a: Applicant) => a.status === 'Interviewing').length;
+    const totalViewsCount = jobs.reduce((acc: number, job: Job) => acc + (job.views || 0), 0);
+
+    return [
+      { label: "Active Jobs", value: activeJobsCount, icon: Briefcase, color: "text-blue-400", bg: "bg-blue-400/10" },
+      { label: "New Applicants", value: totalApplicants, icon: Users, color: "text-indigo-400", bg: "bg-indigo-400/10" },
+      { label: "Interviews", value: interviewsCount, icon: Calendar, color: "text-[#FF4D94]", bg: "bg-[#FF4D94]/10" },
+      { label: "Total Views", value: totalViewsCount > 999 ? (totalViewsCount / 1000).toFixed(1) + 'k' : totalViewsCount, icon: Eye, color: "text-emerald-400", bg: "bg-emerald-400/10" },
+    ];
+  }, [jobs, applicants]);
 
   const groupedApplicants = useMemo(() => {
     return STAGES.reduce((acc, stage) => {
@@ -134,7 +169,7 @@ export default function EmployerDashboard() {
     }, {} as Record<string, typeof applicants>);
   }, [applicants]);
 
-  if (!isLoaded || (user && user.publicMetadata?.role !== "recruiter")) {
+  if (!isLoaded || loading || (user && user.publicMetadata?.role !== "recruiter")) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-[#ff4d94] animate-spin" />
@@ -170,7 +205,15 @@ export default function EmployerDashboard() {
       <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         {stats.map((stat) => (
           <ScaleIn key={stat.label}>
-            <div className="p-6 rounded-2xl glass shadow-sm group hover:border-[#FF4D94]/50 transition-all duration-300">
+            <Link 
+              href={
+                stat.label === "Active Jobs" ? "/dashboard/employer/my-jobs" :
+                stat.label === "New Applicants" ? "/dashboard/employer/applicants" :
+                stat.label === "Interviews" ? "/dashboard/employer/applicants?status=Interviewing" :
+                "#"
+              }
+              className="block p-6 rounded-2xl glass shadow-sm group hover:border-[#FF4D94]/50 transition-all duration-300"
+            >
               <div className="flex items-center justify-between mb-4">
                 <div className={`w-12 h-12 rounded-xl ${stat.bg} flex items-center justify-center ${stat.color}`}>
                   <stat.icon size={24} />
@@ -184,7 +227,7 @@ export default function EmployerDashboard() {
               </div>
               <div className="text-3xl font-extrabold text-white">{stat.value}</div>
               <div className="text-sm font-medium text-slate-400 mt-1">{stat.label}</div>
-            </div>
+            </Link>
           </ScaleIn>
         ))}
       </StaggerContainer>
@@ -386,8 +429,8 @@ export default function EmployerDashboard() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-6">
                   {[
-                    { label: "Applied", value: 240, percentage: 100, color: "bg-blue-400" },
-                    { label: "Shortlisted", value: 45, percentage: 18.7, color: "bg-indigo-400" },
+                    { label: "Applied", value: applicants.length, percentage: 100, color: "bg-blue-400" },
+                    { label: "Shortlisted", value: applicants.filter(a => a.status === 'Shortlisted').length, percentage: applicants.length ? (applicants.filter(a => a.status === 'Shortlisted').length / applicants.length) * 100 : 0, color: "bg-indigo-400" },
                   ].map((item) => (
                     <div key={item.label} className="space-y-2">
                       <div className="flex justify-between text-sm">
@@ -396,7 +439,7 @@ export default function EmployerDashboard() {
                       </div>
                       <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
                         <div 
-                          className={`h-full ${item.color} rounded-full transition-all duration-1000`} 
+                           className={`h-full ${item.color} rounded-full transition-all duration-1000`} 
                           style={{ width: `${item.percentage}%` }}
                         ></div>
                       </div>
@@ -405,8 +448,8 @@ export default function EmployerDashboard() {
                 </div>
                 <div className="space-y-6">
                   {[
-                    { label: "Interviewed", value: 12, percentage: 5, color: "bg-purple-400" },
-                    { label: "Hired", value: 2, percentage: 0.8, color: "bg-[#FF4D94]" }
+                    { label: "Interviewed", value: applicants.filter(a => a.status === 'Interviewing').length, percentage: applicants.length ? (applicants.filter(a => a.status === 'Interviewing').length / applicants.length) * 100 : 0, color: "bg-purple-400" },
+                    { label: "Hired", value: applicants.filter(a => a.status === 'Hired').length, percentage: applicants.length ? (applicants.filter(a => a.status === 'Hired').length / applicants.length) * 100 : 0, color: "bg-[#FF4D94]" }
                   ].map((item) => (
                     <div key={item.label} className="space-y-2">
                       <div className="flex justify-between text-sm">
