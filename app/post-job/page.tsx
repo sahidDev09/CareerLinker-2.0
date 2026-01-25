@@ -58,13 +58,13 @@ export default function PostJobPage() {
       const filePath = `logos/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('career-linker-assets') // Ensure this bucket exists or change to your correct bucket name
+        .from('companies_logo')
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
-        .from('career-linker-assets')
+        .from('companies_logo')
         .getPublicUrl(filePath);
 
       setFormData(prev => ({ ...prev, company_logo: publicUrl }));
@@ -102,6 +102,10 @@ export default function PostJobPage() {
 
     setLoading(true);
     try {
+      // Extract numeric value from salary string (e.g., "$120k" -> 120000)
+      const salaryNum = parseInt(formData.salary.replace(/[^0-9]/g, "")) || 0;
+      const adjustedSalaryNum = formData.salary.toLowerCase().includes('k') ? salaryNum * 1000 : salaryNum;
+
       const { error } = await supabase.from("jobs").insert({
         title: formData.title,
         details: formData.details,
@@ -111,6 +115,7 @@ export default function PostJobPage() {
         type: formData.type,
         working_type: formData.working_type,
         salary: formData.salary,
+        salary_num: adjustedSalaryNum,
         skill_tags: skills,
         recruiter_id: user.id,
         recruiter_name: user.fullName || user.username || "Anonymous",
