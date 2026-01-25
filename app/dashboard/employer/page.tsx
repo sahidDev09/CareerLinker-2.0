@@ -267,7 +267,26 @@ export default function EmployerDashboard() {
           </div>
         </div>
 
-        {view === "list" ? (
+        {applicants.length === 0 ? (
+          <FadeIn>
+            <div className="glass rounded-3xl p-16 text-center border-2 border-dashed border-white/10">
+              <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-6 text-slate-500">
+                <Users size={40} />
+              </div>
+              <h3 className="text-xl font-bold mb-2">No applicants yet</h3>
+              <p className="text-slate-400 max-w-sm mx-auto mb-8">
+                When candidates apply to your job postings, they will appear here in your pipeline.
+              </p>
+              <Link 
+                href="/post-job"
+                className="inline-flex items-center px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm font-bold transition-all"
+              >
+                <Plus size={18} className="mr-2" />
+                Post another job
+              </Link>
+            </div>
+          </FadeIn>
+        ) : view === "list" ? (
           <FadeIn>
             <div className="glass rounded-3xl overflow-hidden shadow-sm">
               <div className="overflow-x-auto">
