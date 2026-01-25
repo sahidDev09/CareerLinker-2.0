@@ -201,7 +201,7 @@ export default function JobDetailPage() {
 
   if (!job) {
     return (
-      <div className="container mx-auto px-4 py-20 text-center">
+      <div className="container mx-auto  py-220 text-center">
         <h2 className="text-3xl font-bold mb-4">Job not found</h2>
         <Link href="/jobs" className="text-[#ff4d94] font-bold hover:underline">
           Back to all jobs
@@ -211,10 +211,10 @@ export default function JobDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0b] text-white">
+    <div className="text-white">
       {/* Hero Section */}
-      <div className="relative pt-32 pb-20 overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-gradient-to-b from-[#ff4d94]/10 to-transparent pointer-events-none" />
+      <div className="relative pt-12 pb-20 overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full bg-gradient-to-b from-[#ff4d94]/10 to-transparent pointer-events-none" />
         <div className="absolute top-40 right-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
         
         <div className="container mx-auto px-4 md:px-6 relative z-10">
@@ -227,7 +227,7 @@ export default function JobDetailPage() {
           </Link>
 
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-            <div className="space-y-6 max-w-3xl">
+            <div className="">
               <FadeIn direction="up">
                 <div className="flex items-center gap-4 mb-4">
                   <span className="px-4 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs font-bold text-[#ff4d94] tracking-wider uppercase">
@@ -277,7 +277,7 @@ export default function JobDetailPage() {
       </div>
 
       {/* Content Grid */}
-      <div className="container mx-auto px-4 md:px-6 pb-32">
+      <div className="container mx-auto px-4 md:px-6 pb-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-12">
