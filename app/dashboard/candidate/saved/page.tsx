@@ -1,29 +1,122 @@
 "use client";
 
-import { FadeIn, StaggerContainer, ScaleIn } from "@/components/shared/Motion";
-import { Bookmark, Briefcase, MapPin, ExternalLink, Trash2 } from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
+import { FadeIn, StaggerContainer } from "@/components/shared/Motion";
+import { Bookmark } from "lucide-react";
 import Link from "next/link";
+import { useUser } from "@clerk/nextjs";
+import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
+import JobCard from "@/components/jobs/JobCard";
 
-const savedJobs = [
-  {
-    id: 1,
-    role: "Senior Frontend Engineer",
-    company: "TechNova Solutions",
-    location: "San Francisco, CA",
-    type: "Full-time",
-    salary: "$140k - $190k",
-  },
-  {
-    id: 2,
-    role: "UI/UX Designer",
-    company: "CreativeFlow",
-    location: "Remote",
-    type: "Contract",
-    salary: "$80k - $120k",
-  }
-];
+interface AppliedProfile {
+  id: string;
+  name: string;
+  avatar: string;
+}
+
+interface Job {
+  id: string;
+  title: string;
+  details: string;
+  company_name: string;
+  company_logo: string;
+  location: string;
+  type: string;
+  working_type: string;
+  salary: string;
+  salary_num: number;
+  skill_tags: string[];
+  applied_count: number;
+  applied_profiles: AppliedProfile[];
+  recruiter_id: string;
+  recruiter_name: string;
+  posted_at: string;
+  posted_date: string;
+}
+
+interface SavedJob {
+  job_id: string;
+  user_id: string;
+  created_at: string;
+  jobs: Job;
+}
 
 export default function SavedJobsPage() {
+  const { user, isLoaded: isUserLoaded } = useUser();
+  const [savedJobs, setSavedJobs] = useState<SavedJob[]>([]);
+  const [loading, setLoading] = useState(true);
+  const supabase = useMemo(() => createClient(), []);
+
+  const fetchSavedJobs = async () => {
+    if (!user) return;
+    
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('saved_jobs')
+        .select(`
+          *,
+          jobs (*)
+        `)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      if (data) setSavedJobs(data as SavedJob[]);
+    } catch (error) {
+      console.error("Error fetching saved jobs:", error);
+      toast.error("Failed to load saved jobs");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isUserLoaded && user) {
+      fetchSavedJobs();
+    } else if (isUserLoaded && !user) {
+      setLoading(false);
+    }
+  }, [user, isUserLoaded, supabase]);
+
+  const handleRemoveSaved = async (jobId: string) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('saved_jobs')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('job_id', jobId);
+
+      if (error) throw error;
+
+      setSavedJobs(prev => prev.filter(item => item.job_id !== jobId));
+      toast.success("Job removed from saved");
+    } catch (error) {
+      console.error("Error removing saved job:", error);
+      toast.error("Failed to remove job");
+    }
+  };
+
+  if (!isUserLoaded || loading) {
+    return (
+      <div className="container mx-auto px-4 md:px-6 py-12">
+        <div className="mb-12">
+          <div className="h-4 w-32 bg-white/5 animate-pulse rounded mb-2" />
+          <div className="h-10 w-64 bg-white/5 animate-pulse rounded mb-4" />
+          <div className="h-4 w-96 bg-white/5 animate-pulse rounded" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="h-[350px] bg-white/5 animate-pulse rounded-[2rem] border border-white/10" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 md:px-6 py-12">
       <FadeIn direction="up">
@@ -39,44 +132,27 @@ export default function SavedJobsPage() {
       </FadeIn>
 
       {savedJobs.length > 0 ? (
-        <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {savedJobs.map((job) => (
-            <ScaleIn key={job.id}>
-              <div className="p-6 rounded-3xl glass border border-white/10 hover:border-[#FF4D94]/50 transition-all group relative">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-[#FF4D94]">
-                    <Briefcase size={24} />
-                  </div>
-                  <button className="p-2 text-slate-500 hover:text-rose-400 transition-colors">
-                    <Trash2 size={20} />
-                  </button>
-                </div>
-                
-                <h3 className="text-xl font-bold mb-1">{job.role}</h3>
-                <p className="text-[#FF4D94] font-bold mb-4">{job.company}</p>
-                
-                <div className="flex flex-wrap gap-4 text-sm text-slate-400 mb-6">
-                  <div className="flex items-center gap-1">
-                    <MapPin size={14} />
-                    {job.location}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Bookmark size={14} />
-                    {job.type}
-                  </div>
-                  <div className="font-bold text-white/90">{job.salary}</div>
-                </div>
-
-                <div className="flex gap-3">
-                  <button className="flex-1 py-3 bg-[#FF4D94] text-white rounded-xl font-bold hover:shadow-lg hover:shadow-[#FF4D94]/20 transition-all">
-                    Apply Now
-                  </button>
-                  <button className="px-4 py-3 bg-white/5 text-white rounded-xl font-bold hover:bg-white/10 transition-all">
-                    <ExternalLink size={20} />
-                  </button>
-                </div>
-              </div>
-            </ScaleIn>
+        <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {savedJobs.map((item) => (
+            <FadeIn key={item.job_id} direction="up">
+              <JobCard 
+                id={item.job_id}
+                title={item.jobs.title}
+                company={item.jobs.company_name}
+                location={item.jobs.location}
+                type={item.jobs.working_type}
+                salary={item.jobs.salary}
+                postedAt={item.jobs.posted_at}
+                logoUrl={item.jobs.company_logo}
+                tags={item.jobs.skill_tags}
+                appliedCount={item.jobs.applied_count}
+                avatars={item.jobs.applied_profiles?.map(p => p.avatar) || []}
+                variant="modern"
+                isSaved={true}
+                onBookmarkToggle={() => handleRemoveSaved(item.job_id)}
+                onDelete={() => handleRemoveSaved(item.job_id)}
+              />
+            </FadeIn>
           ))}
         </StaggerContainer>
       ) : (

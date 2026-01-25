@@ -13,8 +13,10 @@ import {
 import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
 import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { calculateProfileCompleteness } from "@/lib/profile-utils";
+import { Loader2 } from "lucide-react";
 
 
 const stats = [
@@ -66,6 +68,7 @@ const upcomingInterviews = [
 
 export default function CandidateDashboard() {
   const { user, isLoaded } = useUser();
+  const router = useRouter();
   const [profile, setProfile] = useState<any>(null);
   const supabase = useMemo(() => createClient(), []);
 
@@ -97,10 +100,26 @@ export default function CandidateDashboard() {
     fetchProfile();
   }, [user, isLoaded, supabase]);
 
+  useEffect(() => {
+    if (isLoaded && user) {
+      const role = user.publicMetadata?.role as string;
+      if (role === "recruiter") {
+        router.push("/dashboard/employer" + (window.location.search || ""));
+      }
+    }
+  }, [isLoaded, user, router]);
+
   const { percentage, nextSteps, completedSteps } = useMemo(() => {
     return calculateProfileCompleteness(profile);
   }, [profile]);
 
+  if (!isLoaded || (user && user.publicMetadata?.role === "recruiter")) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-[#ff4d94] animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 md:px-6 py-12">
