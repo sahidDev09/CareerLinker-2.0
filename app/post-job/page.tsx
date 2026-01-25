@@ -16,6 +16,7 @@ import {
   Camera
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@clerk/nextjs";
@@ -256,11 +257,19 @@ export default function PostJobPage() {
                   <div className="relative group/logo">
                     <div className="w-24 h-24 md:w-32 md:h-32 rounded-3xl glass flex items-center justify-center p-2 overflow-hidden border-[#FF4D94]/30 relative transition-all group-hover/logo:border-[#FF4D94]/50">
                       {formData.company_logo ? (
-                        <img 
+                        <Image 
                           src={formData.company_logo} 
                           alt="Company Logo" 
+                          width={128}
+                          height={128}
                           className="w-full h-full object-contain rounded-2xl"
-                          onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.company_name || 'C')}&background=random`; }}
+                          unoptimized={formData.company_logo.startsWith('blob:')}
+                          onError={() => {
+                            setFormData(prev => ({ 
+                              ...prev, 
+                              company_logo: `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.company_name || 'C')}&background=random` 
+                            }));
+                          }}
                         />
                       ) : (
                         <div className="text-slate-600 flex flex-col items-center gap-2">
