@@ -17,6 +17,17 @@ import { toast } from "sonner";
 
 const STAGES = ["Pending", "Reviewing", "Shortlisted", "Interviewing", "Hired", "Rejected"];
 
+interface AppliedProfile {
+  user_id: string;
+  user_name: string;
+  user_email: string;
+  resume_url: string;
+  applied: boolean;
+  status: string;
+  avatar?: string;
+  applied_at: string;
+}
+
 const STATUS_COLORS: Record<string, string> = {
   Pending: "bg-slate-400/10 text-slate-400 border-slate-400/20",
   Reviewing: "bg-blue-400/10 text-blue-400 border-blue-400/20",
@@ -24,10 +35,12 @@ const STATUS_COLORS: Record<string, string> = {
   Interviewing: "bg-purple-400/10 text-purple-400 border-purple-400/20",
   Hired: "bg-[#FF4D94]/10 text-[#FF4D94] border-[#FF4D94]/20",
   Rejected: "bg-red-400/10 text-red-400 border-red-400/20",
+  pending: "bg-slate-400/10 text-slate-400 border-slate-400/20",
 };
 
 interface Applicant {
   id: string;
+  jobId: string;
   name: string;
   role: string;
   appliedDate: string;
@@ -70,7 +83,7 @@ function ApplicantsContent() {
         // 1. Fetch all jobs by this recruiter
         const { data: jobsData } = await supabase
           .from('jobs')
-          .select('id')
+          .select('*')
           .eq('recruiter_id', user.id);
 
         if (!jobsData || jobsData.length === 0) {
@@ -78,29 +91,28 @@ function ApplicantsContent() {
           return;
         }
 
-        // 2. Fetch all applications
-        const { data: appsData, error: appsError } = await supabase
-          .from('job_applications')
-          .select('*, profiles(*), jobs(*)')
-          .in('job_id', jobsData.map(j => j.id));
+        // 2. Extract applicants from jobs.applied_profiles
+        const allApplicants: Applicant[] = [];
+        (jobsData || []).forEach(job => {
+          if (job.applied_profiles) {
+            job.applied_profiles.forEach((profile: AppliedProfile) => {
+              allApplicants.push({
+                id: profile.user_id,
+                jobId: job.id,
+                name: profile.user_name,
+                role: job.title,
+                appliedDate: profile.applied_at ? formatRelativeTime(profile.applied_at) : "Recent",
+                status: profile.status,
+                experience: "Candidate",
+                email: profile.user_email,
+                avatar: profile.avatar || null,
+                resume: profile.resume_url
+              });
+            });
+          }
+        });
 
-        if (appsError) throw appsError;
-
-        const mappedApps = (appsData || []).map(app => ({
-          id: app.id,
-          name: app.profiles?.name || "Unknown Candidate",
-          role: app.jobs?.title || "Unknown Role",
-          appliedDate: app.created_at ? formatRelativeTime(app.created_at) : "Unknown",
-          status: app.status || "Pending",
-          experience: app.profiles?.experiences?.[0]?.role 
-            ? `${app.profiles.experiences[0].role} at ${app.profiles.experiences[0].company}` 
-            : "No experience listed",
-          email: app.profiles?.email || "",
-          avatar: app.profiles?.image_url || null,
-          resume: app.resume_url || app.profiles?.resume_url || "#"
-        }));
-
-        setApplicants(mappedApps);
+        setApplicants(allApplicants);
       } catch (error) {
         console.error("Error fetching applicants:", error);
         toast.error("Failed to load applicants");
@@ -112,17 +124,30 @@ function ApplicantsContent() {
     fetchApplicants();
   }, [isLoaded, user, supabase]);
 
-  const handleStatusChange = async (id: string, newStatus: string) => {
+  const handleStatusChange = async (jobId: string, userId: string, newStatus: string) => {
     try {
+      // 1. Fetch current job
+      const { data: jobData, error: jobError } = await supabase
+        .from('jobs')
+        .select('applied_profiles')
+        .eq('id', jobId)
+        .single();
+      
+      if (jobError) throw jobError;
+
+      const updatedProfiles = (jobData.applied_profiles || []).map((p: AppliedProfile) => 
+        p.user_id === userId ? { ...p, status: newStatus } : p
+      );
+
       const { error } = await supabase
-        .from('job_applications')
-        .update({ status: newStatus })
-        .eq('id', id);
+        .from('jobs')
+        .update({ applied_profiles: updatedProfiles })
+        .eq('id', jobId);
 
       if (error) throw error;
 
       setApplicants(prev => prev.map(app => 
-        app.id === id ? { ...app, status: newStatus } : app
+        (app.id === userId && app.jobId === jobId) ? { ...app, status: newStatus } : app
       ));
       toast.success(`Status updated to ${newStatus}`);
     } catch (error) {
@@ -235,7 +260,7 @@ function ApplicantsContent() {
                       <td className="px-6 py-6 font-medium">
                         <select 
                           value={app.status}
-                          onChange={(e) => handleStatusChange(app.id, e.target.value)}
+                          onChange={(e) => handleStatusChange(app.jobId, app.id, e.target.value)}
                           className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-transparent border cursor-pointer outline-none transition-all ${STATUS_COLORS[app.status]}`}
                         >
                           {STAGES.map(stage => (

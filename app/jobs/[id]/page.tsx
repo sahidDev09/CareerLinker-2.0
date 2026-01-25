@@ -25,6 +25,17 @@ import { FadeIn } from "@/components/shared/Motion";
 import DOMPurify from 'dompurify';
 import { formatSalary, formatRelativeTime } from "@/lib/utils";
 
+interface AppliedProfile {
+  user_id: string;
+  user_name: string;
+  user_email: string;
+  resume_url: string;
+  applied: boolean;
+  status: string;
+  avatar?: string;
+  applied_at: string;
+}
+
 interface Job {
   id: string;
   title: string;
@@ -38,6 +49,7 @@ interface Job {
   salary_num: number;
   skill_tags: string[];
   applied_count: number;
+  applied_profiles?: AppliedProfile[];
   posted_at: string;
   posted_date: string;
   description?: string;
@@ -92,13 +104,8 @@ export default function JobDetailPage() {
             setSelectedResumeUrl(profileData.resume_url);
           }
 
-          const { data: appData } = await supabase
-            .from('job_applications')
-            .select('*')
-            .eq('job_id', id)
-            .eq('user_id', user.id);
-
-          if (appData && appData.length > 0) {
+          // Check application status from job details
+          if (jobData.applied_profiles?.some((p: AppliedProfile) => p.user_id === user.id)) {
             setIsApplied(true);
           }
         }
@@ -151,6 +158,8 @@ export default function JobDetailPage() {
       return;
     }
 
+    if (!job) return;
+
     if (!selectedResumeUrl) {
       toast.error("Please provide a resume to apply", {
         description: "Upload a new one or fill your profile."
@@ -160,27 +169,50 @@ export default function JobDetailPage() {
 
     setApplying(true);
     try {
-      // 1. Insert application
-      const { error: appError } = await supabase
-        .from('job_applications')
-        .insert({
-          job_id: id,
-          user_id: user.id,
-          resume_url: selectedResumeUrl,
-          status: 'Applied'
-        });
+      // 1. Prepare application data
+      const newApplication: AppliedProfile = {
+        user_id: user.id,
+        user_name: user.fullName || profile?.name || "Anonymous",
+        user_email: user.primaryEmailAddress?.emailAddress || profile?.email || "",
+        resume_url: selectedResumeUrl,
+        applied: true,
+        status: "pending",
+        avatar: user.imageUrl || "",
+        applied_at: new Date().toISOString()
+      };
 
-      if (appError) throw appError;
-
-      // 2. Update job applied count
-      await supabase.rpc('increment_applied_count', { 
-        job_id: id 
-      });
-
-      // Note: If RPC doesn't exist, we might need a fallback, but let's assume it does for now
-      // as part of the system logic.
+      // 2. Prepare update for jobs table
+      const currentProfiles = job.applied_profiles || [];
       
+      // Prevent duplicates in the array
+      const alreadyApplied = currentProfiles.some(p => p.user_id === user.id);
+      if (alreadyApplied) {
+        setIsApplied(true);
+        toast.info("You have already applied for this position.");
+        setApplying(false);
+        return;
+      }
+
+      const updatedProfiles = [...currentProfiles, newApplication];
+      
+      const { error: jobUpdateError } = await supabase
+        .from('jobs')
+        .update({ 
+          applied_profiles: updatedProfiles,
+          applied_count: alreadyApplied ? job.applied_count : (job.applied_count || 0) + 1
+        })
+        .eq('id', id);
+
+      if (jobUpdateError) throw jobUpdateError;
+
+      // 4. Update local state
       setIsApplied(true);
+      setJob(prev => prev ? {
+        ...prev,
+        applied_count: alreadyApplied ? prev.applied_count : (prev.applied_count || 0) + 1,
+        applied_profiles: updatedProfiles
+      } : null);
+
       toast.success("Application submitted successfully!", {
         description: "The recruiter has been notified of your interest."
       });
