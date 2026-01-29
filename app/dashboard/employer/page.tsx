@@ -24,6 +24,7 @@ import { createClient } from "@/lib/supabase/client";
 import { formatRelativeTime } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import InterviewModal, { InterviewDetails } from "@/components/dashboard/InterviewModal";
 
 
 const STAGES = ["Pending", "Reviewing", "Shortlisted", "Interviewing", "Hired", "Rejected"];
@@ -37,6 +38,7 @@ interface AppliedProfile {
   status: string;
   avatar?: string;
   applied_at: string;
+  interview_details?: InterviewDetails;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -69,6 +71,7 @@ interface Applicant {
   email: string;
   avatar: string | null;
   resume: string;
+  interview_details?: InterviewDetails;
 }
 
 interface Job {
@@ -86,9 +89,28 @@ export default function EmployerDashboard() {
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false);
+  const [selectedApplicant, setSelectedApplicant] = useState<{jobId: string, userId: string, name: string, interview_details?: InterviewDetails} | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+
   const supabase = createClient();
 
   const handleStatusChange = async (jobId: string, userId: string, newStatus: string) => {
+    if (newStatus === "Interviewing") {
+      const applicant = applicants.find(a => a.id === userId && a.jobId === jobId);
+      if (applicant) {
+        setSelectedApplicant({ 
+          jobId, 
+          userId, 
+          name: applicant.name,
+          interview_details: applicant.interview_details 
+        });
+        setIsInterviewModalOpen(true);
+      }
+      return;
+    }
+
     try {
       // 1. Fetch current job
       const { data: jobData, error: jobError } = await supabase
@@ -100,7 +122,7 @@ export default function EmployerDashboard() {
       if (jobError) throw jobError;
 
       const updatedProfiles = (jobData.applied_profiles || []).map((p: AppliedProfile) => 
-        p.user_id === userId ? { ...p, status: newStatus } : p
+        p.user_id === userId ? { ...p, status: newStatus, interview_details: newStatus === "Interviewing" ? p.interview_details : undefined } : p
       );
 
       const { error } = await supabase
@@ -117,6 +139,48 @@ export default function EmployerDashboard() {
     } catch (error) {
       console.error("Error updating status:", error);
       toast.error("Failed to update status");
+    }
+  };
+
+  const handleInterviewConfirm = async (details: InterviewDetails) => {
+    if (!selectedApplicant) return;
+    
+    try {
+      setIsUpdating(true);
+      const { jobId, userId } = selectedApplicant;
+
+      // 1. Fetch current job
+      const { data: jobData, error: jobError } = await supabase
+        .from('jobs')
+        .select('applied_profiles')
+        .eq('id', jobId)
+        .single();
+      
+      if (jobError) throw jobError;
+
+      const updatedProfiles = (jobData.applied_profiles || []).map((p: AppliedProfile) => 
+        p.user_id === userId ? { ...p, status: "Interviewing", interview_details: details } : p
+      );
+
+      const { error } = await supabase
+        .from('jobs')
+        .update({ applied_profiles: updatedProfiles })
+        .eq('id', jobId);
+
+      if (error) throw error;
+
+      setApplicants((prev: Applicant[]) => prev.map((app: Applicant) => 
+        (app.id === userId && app.jobId === jobId) ? { ...app, status: "Interviewing", interview_details: details } : app
+      ));
+      
+      toast.success(`Interview scheduled for ${selectedApplicant.name}`);
+      setIsInterviewModalOpen(false);
+      setSelectedApplicant(null);
+    } catch (error) {
+      console.error("Error scheduling interview:", error);
+      toast.error("Failed to schedule interview");
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -188,7 +252,8 @@ export default function EmployerDashboard() {
                 experience: "Candidate",
                 email: profile.user_email,
                 avatar: profile.avatar || null,
-                resume: profile.resume_url
+                resume: profile.resume_url,
+                interview_details: profile.interview_details
               });
             });
           }
@@ -584,6 +649,18 @@ export default function EmployerDashboard() {
             </div>
         </div>
       </div>
+
+      <InterviewModal
+        isOpen={isInterviewModalOpen}
+        onClose={() => {
+          setIsInterviewModalOpen(false);
+          setSelectedApplicant(null);
+        }}
+        onConfirm={handleInterviewConfirm}
+        isLoading={isUpdating}
+        candidateName={selectedApplicant?.name || ""}
+        initialDetails={selectedApplicant?.interview_details}
+      />
     </div>
   );
 }

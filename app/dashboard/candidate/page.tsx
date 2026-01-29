@@ -29,6 +29,11 @@ interface AppliedProfile {
   status: string;
   avatar?: string;
   applied_at: string;
+  interview_details?: {
+    interviewers: string;
+    meeting_url: string;
+    scheduled_at: string;
+  };
 }
 
 interface Job {
@@ -172,13 +177,23 @@ export default function CandidateDashboard() {
         const s = myProfile?.status?.toLowerCase();
         return s === 'interviewing' || s === 'interview scheduled';
       })
-      .map(job => ({
-        id: job.id,
-        role: job.title,
-        company: job.company_name,
-        time: "Date TBD",
-        type: "Video Call",
-      }));
+      .map(job => {
+        const myProfile = job.applied_profiles?.find((p: AppliedProfile) => p.user_id === user?.id);
+        const details = myProfile?.interview_details;
+        
+        return {
+          id: job.id,
+          role: job.title,
+          company: job.company_name,
+          time: details?.scheduled_at ? new Date(details.scheduled_at).toLocaleString([], {
+            dateStyle: 'medium',
+            timeStyle: 'short'
+          }) : "Date TBD",
+          type: "Video Call",
+          meeting_url: details?.meeting_url,
+          interviewers: details?.interviewers
+        };
+      });
   }, [appliedJobs, user]);
 
   if (!isLoaded || loading || (user && user.publicMetadata?.role === "recruiter")) {
@@ -311,9 +326,19 @@ export default function CandidateDashboard() {
                     <Play size={14} />
                     <span>Join via {interview.type}</span>
                   </div>
-                  <button className="w-full py-3 bg-white text-[#FF4D94] rounded-xl font-bold hover:bg-slate-100 transition-colors">
-                    View Invitation
-                  </button>
+                  {interview.meeting_url && (
+                    <button 
+                      onClick={() => window.open(interview.meeting_url, '_blank')}
+                      className="w-full py-3 bg-white text-[#FF4D94] rounded-xl font-bold hover:bg-slate-100 transition-colors"
+                    >
+                      Join Meeting
+                    </button>
+                  )}
+                  {interview.interviewers && (
+                    <p className="text-[10px] opacity-70 mt-4 leading-relaxed line-clamp-2">
+                       {interview.interviewers}
+                    </p>
+                  )}
                 </div>
               ))
             ) : (
