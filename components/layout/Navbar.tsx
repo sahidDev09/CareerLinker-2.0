@@ -4,12 +4,29 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bookmark, Menu, X, Briefcase } from "lucide-react";
 import { SignInButton, SignUpButton, UserButton, SignedIn, SignedOut, useUser, useClerk } from "@clerk/nextjs";
-import { useState, useRef, useLayoutEffect, useEffect } from "react";
+import { useState, useRef, useLayoutEffect, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import gsap from "gsap";
 import Image from "next/image";
 import RoleSelection from "@/components/shared/RoleSelection";
+
+function AuthRedirectHandler() {
+  const { user } = useUser();
+  const { openSignIn } = useClerk();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get('show_signin') === 'true' && !user) {
+      const redirectUrl = searchParams.get('redirect_url') || undefined;
+      openSignIn({
+        fallbackRedirectUrl: redirectUrl,
+      });
+    }
+  }, [searchParams, openSignIn, user]);
+
+  return null;
+}
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,18 +41,6 @@ export default function Navbar() {
   const { user } = useUser();
   const role = user?.publicMetadata?.role as "candidate" | "recruiter" | undefined;
   const actionButtonText = role === "candidate" ? "Apply Jobs" : "Post a Job";
-
-  const { openSignIn } = useClerk();
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    if (searchParams.get('show_signin') === 'true' && !user) {
-      const redirectUrl = searchParams.get('redirect_url') || undefined;
-      openSignIn({
-        fallbackRedirectUrl: redirectUrl,
-      });
-    }
-  }, [searchParams, openSignIn, user]);
 
   const navLinks = [
     { name: "Find Jobs", href: "/jobs" },
@@ -277,6 +282,9 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+      <Suspense fallback={null}>
+        <AuthRedirectHandler />
+      </Suspense>
       <RoleSelection />
     </div>
   );
