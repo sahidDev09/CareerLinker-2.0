@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { Github, Linkedin, Facebook, Dribbble, Sun, Chrome as Zoom, LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
+import { SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import Link from "next/link";
 
 interface JobCardProps {
   company: string;
@@ -50,7 +52,7 @@ const JobCard = ({
       <p className="text-xs font-semibold opacity-70 mb-8 line-clamp-2 h-10 leading-relaxed">
         {description}
       </p>
-
+      
       <div className="flex items-center justify-between mt-auto">
         <div className="flex -space-x-2.5">
           {avatars.map((avatar, i) => (
@@ -63,9 +65,20 @@ const JobCard = ({
           </div>
         </div>
         {isActive && (
-          <button className="bg-[#ff4d94]/80 text-white text-[13px] font-black px-7 py-3 rounded-2xl hover:bg-[#ff4d96] transition-all shadow-lg hover:shadow-xl active:scale-95">
-            Apply
-          </button>
+          <>
+            <SignedOut>
+              <SignInButton mode="modal" fallbackRedirectUrl="/jobs">
+                <button className="bg-[#ff4d94]/80 text-white text-[13px] font-black px-7 py-3 rounded-2xl hover:bg-[#ff4d96] transition-all shadow-lg hover:shadow-xl active:scale-95">
+                  Apply
+                </button>
+              </SignInButton>
+            </SignedOut>
+            <SignedIn>
+              <Link href="/jobs" className="bg-[#ff4d94]/80 text-white text-[13px] font-black px-7 py-3 rounded-2xl hover:bg-[#ff4d96] transition-all shadow-lg hover:shadow-xl active:scale-95 block">
+                Apply
+              </Link>
+            </SignedIn>
+          </>
         )}
       </div>
     </motion.div>

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { MapPin, Clock, DollarSign, Briefcase, Bookmark, ExternalLink, MoreHorizontal, ArrowRight, Trash2, Pencil } from "lucide-react";
 import { cn, formatSalary, formatRelativeTime } from "@/lib/utils";
+import { SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import Link from "next/link";
 
 interface JobCardProps {
@@ -65,25 +66,39 @@ export default function JobCard({
       >
         {/* Top Actions */}
         <div className="flex items-center justify-between mb-5">
-          <button 
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onBookmarkToggle?.();
-            }}
-            disabled={isBookmarking}
-            className={cn(
-              "transition-all duration-300",
-              isSaved ? "text-[#ff4d94] fill-[#ff4d94]" : "text-white/70 hover:text-[#ff4d94]",
-              isBookmarking && "opacity-50 cursor-wait"
-            )}
-          >
-            <Bookmark 
-              size={24} 
-              strokeWidth={1.5} 
-              className={cn(isSaved && "fill-current")}
-            />
-          </button>
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button 
+                className="text-white/70 hover:text-[#ff4d94] transition-all duration-300"
+              >
+                <Bookmark 
+                  size={24} 
+                  strokeWidth={1.5} 
+                />
+              </button>
+            </SignInButton>
+          </SignedOut>
+          <SignedIn>
+            <button 
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onBookmarkToggle?.();
+              }}
+              disabled={isBookmarking}
+              className={cn(
+                "transition-all duration-300",
+                isSaved ? "text-[#ff4d94] fill-[#ff4d94]" : "text-white/70 hover:text-[#ff4d94]",
+                isBookmarking && "opacity-50 cursor-wait"
+              )}
+            >
+              <Bookmark 
+                size={24} 
+                strokeWidth={1.5} 
+                className={cn(isSaved && "fill-current")}
+              />
+            </button>
+          </SignedIn>
           <div className="flex items-center gap-2">
             {onEdit && (
               <button 
@@ -179,12 +194,21 @@ export default function JobCard({
               <span className="text-[0.8rem] text-slate-500 font-medium">{formatRelativeTime(postedAt)}</span>
             </div>
           </div>
-          <Link 
-            href={`/jobs/${id}`}
-            className="bg-[#ff4d94] text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-[#ff3385] transition-all hover:shadow-lg hover:shadow-pink-500/20"
-          >
-            View
-          </Link>
+          <SignedOut>
+            <SignInButton mode="modal" fallbackRedirectUrl={`/jobs/${id}`}>
+              <button className="bg-[#ff4d94] text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-[#ff3385] transition-all hover:shadow-lg hover:shadow-pink-500/20">
+                View
+              </button>
+            </SignInButton>
+          </SignedOut>
+          <SignedIn>
+            <Link 
+              href={`/jobs/${id}`}
+              className="bg-[#ff4d94] text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-[#ff3385] transition-all hover:shadow-lg hover:shadow-pink-500/20"
+            >
+              View
+            </Link>
+          </SignedIn>
         </div>
       </motion.div>
     );
@@ -242,24 +266,33 @@ export default function JobCard({
               <Trash2 size={18} />
             </button>
           )}
-          <button 
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onBookmarkToggle?.();
-            }}
-            disabled={isBookmarking}
-            className={cn(
-              "transition-all duration-300",
-              isSaved ? "text-[#ff4d94]" : "text-slate-500 hover:text-indigo-400",
-              isBookmarking && "opacity-50 cursor-wait"
-            )}
-          >
-            <Bookmark 
-              size={20} 
-              className={cn(isSaved && "fill-current text-[#ff4d94]")}
-            />
-          </button>
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button className="text-slate-500 hover:text-indigo-400 transition-all duration-300">
+                <Bookmark size={20} />
+              </button>
+            </SignInButton>
+          </SignedOut>
+          <SignedIn>
+            <button 
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onBookmarkToggle?.();
+              }}
+              disabled={isBookmarking}
+              className={cn(
+                "transition-all duration-300",
+                isSaved ? "text-[#ff4d94]" : "text-slate-500 hover:text-indigo-400",
+                isBookmarking && "opacity-50 cursor-wait"
+              )}
+            >
+              <Bookmark 
+                size={20} 
+                className={cn(isSaved && "fill-current text-[#ff4d94]")}
+              />
+            </button>
+          </SignedIn>
         </div>
       </div>
 
@@ -301,13 +334,23 @@ export default function JobCard({
 
       <div className="flex items-center justify-between pt-6 border-t border-white/5">
         <span className="text-xs text-slate-500 font-medium">Posted {formatRelativeTime(postedAt)}</span>
-        <Link 
-          href={`/jobs/${id}`}
-          className="flex items-center text-sm font-bold text-indigo-400 group-hover:underline"
-        >
-          View Details
-          <ExternalLink size={14} className="ml-1.5" />
-        </Link>
+        <SignedOut>
+          <SignInButton mode="modal" fallbackRedirectUrl={`/jobs/${id}`}>
+            <button className="flex items-center text-sm font-bold text-indigo-400 group-hover:underline">
+              View Details
+              <ExternalLink size={14} className="ml-1.5" />
+            </button>
+          </SignInButton>
+        </SignedOut>
+        <SignedIn>
+          <Link 
+            href={`/jobs/${id}`}
+            className="flex items-center text-sm font-bold text-indigo-400 group-hover:underline"
+          >
+            View Details
+            <ExternalLink size={14} className="ml-1.5" />
+          </Link>
+        </SignedIn>
       </div>
     </motion.div>
   );

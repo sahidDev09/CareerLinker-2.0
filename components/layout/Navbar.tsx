@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bookmark, Menu, X, Briefcase } from "lucide-react";
-import { SignInButton, SignUpButton, UserButton, SignedIn, SignedOut, useUser } from "@clerk/nextjs";
-import { useState, useRef, useLayoutEffect } from "react";
+import { SignInButton, SignUpButton, UserButton, SignedIn, SignedOut, useUser, useClerk } from "@clerk/nextjs";
+import { useState, useRef, useLayoutEffect, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import gsap from "gsap";
 import Image from "next/image";
@@ -23,6 +24,18 @@ export default function Navbar() {
   const { user } = useUser();
   const role = user?.publicMetadata?.role as "candidate" | "recruiter" | undefined;
   const actionButtonText = role === "candidate" ? "Apply Jobs" : "Post a Job";
+
+  const { openSignIn } = useClerk();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get('show_signin') === 'true' && !user) {
+      const redirectUrl = searchParams.get('redirect_url') || undefined;
+      openSignIn({
+        fallbackRedirectUrl: redirectUrl,
+      });
+    }
+  }, [searchParams, openSignIn, user]);
 
   const navLinks = [
     { name: "Find Jobs", href: "/jobs" },
@@ -78,16 +91,31 @@ export default function Navbar() {
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center space-x-8" ref={linksRef}>
             {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                className={cn(
-                  "nav-link text-sm font-semibold transition-colors duration-300 hover:text-[#ff4d94] relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-[#ff4d94] after:transition-all hover:after:w-full",
-                  pathname === link.href ? "text-[#ff4d94] after:w-full" : "text-white/80"
-                )}
-              >
-                {link.name}
-              </Link>
+              <div key={link.name}>
+                <SignedOut>
+                  <SignInButton mode="modal" fallbackRedirectUrl={link.href}>
+                    <button
+                      className={cn(
+                        "nav-link text-sm font-semibold transition-colors duration-300 hover:text-[#ff4d94] relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-[#ff4d94] after:transition-all hover:after:w-full",
+                        pathname === link.href ? "text-[#ff4d94] after:w-full" : "text-white/80"
+                      )}
+                    >
+                      {link.name}
+                    </button>
+                  </SignInButton>
+                </SignedOut>
+                <SignedIn>
+                  <Link
+                    href={link.href}
+                    className={cn(
+                      "nav-link text-sm font-semibold transition-colors duration-300 hover:text-[#ff4d94] relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-[#ff4d94] after:transition-all hover:after:w-full",
+                      pathname === link.href ? "text-[#ff4d94] after:w-full" : "text-white/80"
+                    )}
+                  >
+                    {link.name}
+                  </Link>
+                </SignedIn>
+              </div>
             ))}
           </div>
 
@@ -163,14 +191,27 @@ export default function Navbar() {
         >
           <div className="px-6 space-y-4">
             {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                onClick={() => setIsOpen(false)}
-                className="block text-lg font-bold text-white/90 hover:text-[#ff4d94] transition-colors"
-              >
-                {link.name}
-              </Link>
+              <div key={link.name}>
+                <SignedOut>
+                  <SignInButton mode="modal" fallbackRedirectUrl={link.href}>
+                    <button 
+                      onClick={() => setIsOpen(false)}
+                      className="block text-lg font-bold text-white/90 hover:text-[#ff4d94] transition-colors text-left"
+                    >
+                      {link.name}
+                    </button>
+                  </SignInButton>
+                </SignedOut>
+                <SignedIn>
+                  <Link
+                    href={link.href}
+                    onClick={() => setIsOpen(false)}
+                    className="block text-lg font-bold text-white/90 hover:text-[#ff4d94] transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                </SignedIn>
+              </div>
             ))}
             <hr className="border-white/10" />
             <SignedOut>

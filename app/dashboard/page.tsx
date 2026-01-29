@@ -12,7 +12,7 @@ export default function DashboardDispatcher() {
   useEffect(() => {
     if (isLoaded) {
       if (!user) {
-        router.push("/sign-in");
+        router.push("/?show_signin=true&redirect_url=/dashboard");
         return;
       }
 
