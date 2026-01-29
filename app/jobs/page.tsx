@@ -10,6 +10,7 @@ import { Menu, X } from "lucide-react";
 import gsap from "gsap";
 import { useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
+import { useSearchParams } from "next/navigation";
 
 interface AppliedProfile {
   user_id: string;
@@ -45,9 +46,12 @@ interface Job {
 type SortOrder = 'newest' | 'oldest' | 'salary-high';
 
 export default function JobsPage() {
+  const searchParams = useSearchParams();
+  const initialSearch = searchParams.get("search");
+
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialSearch || "");
   const [locationQuery, setLocationQuery] = useState("");
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
@@ -59,6 +63,13 @@ export default function JobsPage() {
 
   const { user, isLoaded: isUserLoaded } = useUser();
   const supabase = useMemo(() => createClient(), []);
+
+  // Update searchQuery if URL param changes
+  useEffect(() => {
+    if (initialSearch !== null) {
+      setSearchQuery(initialSearch);
+    }
+  }, [initialSearch]);
 
   useEffect(() => {
     async function fetchJobs() {
