@@ -3,7 +3,7 @@
 import { FadeIn, StaggerContainer } from "@/components/shared/Motion";
 import JobCard from "@/components/jobs/JobCard";
 import JobFilter from "@/components/jobs/JobFilter";
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, Suspense } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
@@ -45,7 +45,7 @@ interface Job {
 
 type SortOrder = 'newest' | 'oldest' | 'salary-high';
 
-export default function JobsPage() {
+function JobsContent() {
   const searchParams = useSearchParams();
   const initialSearch = searchParams.get("search");
 
@@ -384,5 +384,17 @@ export default function JobsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function JobsPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto py-12 flex justify-center items-center min-h-[50vh]">
+        <div className="w-12 h-12 border-4 border-[#ff4d94] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }>
+      <JobsContent />
+    </Suspense>
   );
 }
