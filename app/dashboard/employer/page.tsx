@@ -13,7 +13,8 @@ import {
   List,
   MoreHorizontal,
   ChevronRight,
-  FileText
+  FileText,
+  Trash2
 } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
@@ -116,6 +117,38 @@ export default function EmployerDashboard() {
     } catch (error) {
       console.error("Error updating status:", error);
       toast.error("Failed to update status");
+    }
+  };
+
+  const handleDeleteApplication = async (jobId: string, userId: string) => {
+    if (!confirm("Are you sure you want to delete this application? This action cannot be undone.")) return;
+
+    try {
+      // 1. Fetch current job
+      const { data: jobData, error: jobError } = await supabase
+        .from('jobs')
+        .select('applied_profiles')
+        .eq('id', jobId)
+        .single();
+      
+      if (jobError) throw jobError;
+
+      const updatedProfiles = (jobData.applied_profiles || []).filter((p: AppliedProfile) => 
+        p.user_id !== userId
+      );
+
+      const { error } = await supabase
+        .from('jobs')
+        .update({ applied_profiles: updatedProfiles })
+        .eq('id', jobId);
+
+      if (error) throw error;
+
+      setApplicants((prev: Applicant[]) => prev.filter((app: Applicant) => !(app.id === userId && app.jobId === jobId)));
+      toast.success("Application deleted successfully");
+    } catch (error) {
+      console.error("Error deleting application:", error);
+      toast.error("Failed to delete application");
     }
   };
 
@@ -362,6 +395,16 @@ export default function EmployerDashboard() {
                               <FileText size={14} className="text-[#FF4D94] group-hover/btn:text-white transition-colors" />
                               View Resume
                             </button>
+
+                            {app.status === "Rejected" && (
+                              <button 
+                                className="flex items-center justify-center p-1.5 text-red-500 bg-red-500/10 hover:bg-red-500 hover:text-white border border-red-500/20 rounded-lg transition-all"
+                                onClick={() => handleDeleteApplication(app.jobId, app.id)}
+                                title="Delete Application"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -418,6 +461,17 @@ export default function EmployerDashboard() {
                                     {s}
                                   </button>
                                 ))}
+                                {app.status === "Rejected" && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteApplication(app.jobId, app.id);
+                                    }}
+                                    className="w-full text-left px-3 py-1.5 text-[10px] font-bold uppercase rounded-lg hover:bg-red-500/10 text-red-500 transition-colors"
+                                  >
+                                    Delete
+                                  </button>
+                                )}
                               </div>
                             </div>
                           </div>

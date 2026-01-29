@@ -5,7 +5,8 @@ import {
   ArrowLeft,
   Search,
   Loader2,
-  FileText
+  FileText,
+  Trash2
 } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
@@ -156,6 +157,38 @@ function ApplicantsContent() {
     }
   };
 
+  const handleDeleteApplication = async (jobId: string, userId: string) => {
+    if (!confirm("Are you sure you want to delete this application? This action cannot be undone.")) return;
+
+    try {
+      // 1. Fetch current job
+      const { data: jobData, error: jobError } = await supabase
+        .from('jobs')
+        .select('applied_profiles')
+        .eq('id', jobId)
+        .single();
+      
+      if (jobError) throw jobError;
+
+      const updatedProfiles = (jobData.applied_profiles || []).filter((p: AppliedProfile) => 
+        p.user_id !== userId
+      );
+
+      const { error } = await supabase
+        .from('jobs')
+        .update({ applied_profiles: updatedProfiles })
+        .eq('id', jobId);
+
+      if (error) throw error;
+
+      setApplicants(prev => prev.filter(app => !(app.id === userId && app.jobId === jobId)));
+      toast.success("Application deleted successfully");
+    } catch (error) {
+      console.error("Error deleting application:", error);
+      toast.error("Failed to delete application");
+    }
+  };
+
   const filteredApplicants = useMemo(() => {
     return applicants.filter(app => {
       const matchesSearch = app.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -271,13 +304,25 @@ function ApplicantsContent() {
                         </select>
                       </td>
                       <td className="px-6 py-6 text-right">
-                        <button 
-                          className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-[#FF4D94]/10 hover:bg-[#FF4D94] border border-[#FF4D94]/20 hover:border-[#FF4D94] rounded-xl transition-all group/btn"
-                          onClick={() => window.open(app.resume, '_blank')}
-                        >
-                          <FileText size={14} className="text-[#FF4D94] group-hover/btn:text-white transition-colors" />
-                          Resume
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          <button 
+                            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-[#FF4D94]/10 hover:bg-[#FF4D94] border border-[#FF4D94]/20 hover:border-[#FF4D94] rounded-xl transition-all group/btn"
+                            onClick={() => window.open(app.resume, '_blank')}
+                          >
+                            <FileText size={14} className="text-[#FF4D94] group-hover/btn:text-white transition-colors" />
+                            Resume
+                          </button>
+                          
+                          {app.status === "Rejected" && (
+                            <button 
+                              className="inline-flex items-center justify-center p-2 text-red-500 bg-red-500/10 hover:bg-red-500 hover:text-white border border-red-500/20 rounded-xl transition-all"
+                              onClick={() => handleDeleteApplication(app.jobId, app.id)}
+                              title="Delete Application"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))
