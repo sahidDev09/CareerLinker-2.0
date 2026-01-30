@@ -1,7 +1,10 @@
 # CareerLinker 🚀
 Description : A premium, high-performance job recruitment platform designed to connect ambitious talent with industry-leading employers. Built with the latest web technologies, it offers a seamless, interactive, and aesthetically stunning experience for both candidates and recruiters.
 
+**Live Preview:** [career-linker-ten.vercel.app](https://career-linker-ten.vercel.app)
+
 ## 📸 Visual Showcase
+
 
 ### 🏠 Landing Page
 ![Home Page](./public/screenshots/home.png)
