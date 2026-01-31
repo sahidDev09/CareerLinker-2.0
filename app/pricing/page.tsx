@@ -8,130 +8,29 @@ import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState, useMemo } from "react";
 
+import pricingData from "@/data/pricing-plans.json";
+
 interface PricingPlan {
   name: string;
   price: string;
   description: string;
   features: string[];
-  icon: React.ReactNode;
+  icon: string;
   color: string;
   bgColor: string;
   isPopular?: boolean;
   buttonText: string;
 }
 
-const candidatePlans: PricingPlan[] = [
-  {
-    name: "Free",
-    price: "$0",
-    description: "Best for new users exploring the platform",
-    icon: <Rocket className="w-8 h-8" />,
-    color: "text-emerald-400",
-    bgColor: "bg-emerald-400/10",
-    features: [
-      "5 credits (one-time)",
-      "Browse jobs",
-      "Save jobs",
-      "Limited job applications",
-      "Basic profile visibility",
-    ],
-    buttonText: "Get Started",
-  },
-  {
-    name: "Standard",
-    price: "$19",
-    description: "For active job seekers",
-    icon: <Zap className="w-8 h-8" />,
-    color: "text-blue-400",
-    bgColor: "bg-blue-400/10",
-    isPopular: true,
-    features: [
-      "50 credits / month",
-      "Easy Apply",
-      "Direct email to recruiters",
-      "Profile boost (standard)",
-      "Job alerts",
-      "24/7 support",
-    ],
-    buttonText: "Go Standard",
-  },
-  {
-    name: "Premium",
-    price: "$49",
-    description: "For serious & fast job seekers",
-    icon: <Crown className="w-8 h-8" />,
-    color: "text-purple-400",
-    bgColor: "bg-purple-400/10",
-    features: [
-      "Unlimited credits",
-      "Connect directly with recruiters",
-      "High-priority applications",
-      "Profile highlighted",
-      "Top listed jobs access",
-      "Early access to new postings",
-      "24/7 VIP support",
-    ],
-    buttonText: "Go Premium",
-  },
-];
+const ICON_MAP: Record<string, React.ReactNode> = {
+  Rocket: <Rocket className="w-8 h-8" />,
+  Zap: <Zap className="w-8 h-8" />,
+  Crown: <Crown className="w-8 h-8" />,
+  Users: <Users className="w-8 h-8" />,
+  BarChart3: <BarChart3 className="w-8 h-8" />,
+  Shield: <Shield className="w-8 h-8" />,
+};
 
-const recruiterPlans: PricingPlan[] = [
-  {
-    name: "Free",
-    price: "$0",
-    description: "For small companies or first-time recruiters",
-    icon: <Users className="w-8 h-8" />,
-    color: "text-emerald-400",
-    bgColor: "bg-emerald-400/10",
-    features: [
-      "Post 5 job",
-      "View limited profiles",
-      "Basic applicant tracking",
-      "Standard job visibility",
-      "Email support",
-    ],
-    buttonText: "Start Hiring",
-  },
-  {
-    name: "Standard",
-    price: "$15",
-    description: "For growing teams",
-    icon: <BarChart3 className="w-8 h-8" />,
-    color: "text-blue-400",
-    bgColor: "bg-blue-400/10",
-    isPopular: true,
-    features: [
-      "Post up to 10 jobs / month",
-      "Access to candidate database",
-      "Shortlist & save candidates",
-      "Direct message candidates",
-      "Standard job promotion",
-      "Basic analytics",
-      "24/7 support",
-    ],
-    buttonText: "Upgrade Teams",
-  },
-  {
-    name: "Premium",
-    price: "$49",
-    description: "For agencies & high-volume hiring",
-    icon: <Shield className="w-8 h-8" />,
-    color: "text-purple-400",
-    bgColor: "bg-purple-400/10",
-    features: [
-      "Unlimited job postings",
-      "Full database access",
-      "Priority job listings",
-      "Featured company profile",
-      "Direct chat & email",
-      "Advanced analytics & reports",
-      "AI recommendations",
-      "Dedicated account manager",
-      "24/7 VIP support",
-    ],
-    buttonText: "Go Premium",
-  },
-];
 
 export default function PricingPage() {
   const { user, isLoaded } = useUser();
@@ -158,7 +57,7 @@ export default function PricingPage() {
     }
   }, [user, isLoaded, supabase]);
 
-  const plans = role === "recruiter" ? recruiterPlans : candidatePlans;
+  const plans = (role === "recruiter" ? pricingData.recruiter : pricingData.candidate) as PricingPlan[];
 
   if (!isLoaded) {
     return (
@@ -250,7 +149,7 @@ function PricingCard({ plan, index, isCurrent }: { plan: PricingPlan; index: num
       {/* Icon & Name */}
       <div className="flex items-center justify-between mb-8">
         <div className={cn("p-4 rounded-2xl", plan.bgColor, plan.color)}>
-          {plan.icon}
+          {ICON_MAP[plan.icon]}
         </div>
         <div className="text-right">
           <h3 className="text-2xl font-bold text-white mb-1">{plan.name}</h3>

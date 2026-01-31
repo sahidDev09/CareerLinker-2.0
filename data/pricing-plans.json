@@ -1,0 +1,113 @@
+{
+  "candidate": [
+    {
+      "name": "Free",
+      "price": "$0",
+      "description": "Best for new users exploring the platform",
+      "icon": "Rocket",
+      "color": "text-emerald-400",
+      "bgColor": "bg-emerald-400/10",
+      "features": [
+        "5 credits (one-time)",
+        "Browse jobs",
+        "Save jobs",
+        "Limited job applications",
+        "Basic profile visibility"
+      ],
+      "buttonText": "Get Started"
+    },
+    {
+      "name": "Standard",
+      "price": "$19",
+      "description": "For active job seekers",
+      "icon": "Zap",
+      "color": "text-blue-400",
+      "bgColor": "bg-blue-400/10",
+      "isPopular": true,
+      "features": [
+        "50 credits / month",
+        "Easy Apply",
+        "Direct email to recruiters",
+        "Profile boost (standard)",
+        "Job alerts",
+        "24/7 support"
+      ],
+      "buttonText": "Go Standard"
+    },
+    {
+      "name": "Premium",
+      "price": "$49",
+      "description": "For serious & fast job seekers",
+      "icon": "Crown",
+      "color": "text-purple-400",
+      "bgColor": "bg-purple-400/10",
+      "features": [
+        "Unlimited credits",
+        "Connect directly with recruiters",
+        "High-priority applications",
+        "Profile highlighted",
+        "Top listed jobs access",
+        "Early access to new postings",
+        "24/7 VIP support"
+      ],
+      "buttonText": "Go Premium"
+    }
+  ],
+  "recruiter": [
+    {
+      "name": "Free",
+      "price": "$0",
+      "description": "For small companies or first-time recruiters",
+      "icon": "Users",
+      "color": "text-emerald-400",
+      "bgColor": "bg-emerald-400/10",
+      "features": [
+        "Post 5 job",
+        "View limited profiles",
+        "Basic applicant tracking",
+        "Standard job visibility",
+        "Email support"
+      ],
+      "buttonText": "Start Hiring"
+    },
+    {
+      "name": "Standard",
+      "price": "$15",
+      "description": "For growing teams",
+      "icon": "BarChart3",
+      "color": "text-blue-400",
+      "bgColor": "bg-blue-400/10",
+      "isPopular": true,
+      "features": [
+        "Post up to 10 jobs / month",
+        "Access to candidate database",
+        "Shortlist & save candidates",
+        "Direct message candidates",
+        "Standard job promotion",
+        "Basic analytics",
+        "24/7 support"
+      ],
+      "buttonText": "Upgrade Teams"
+    },
+    {
+      "name": "Premium",
+      "price": "$49",
+      "description": "For agencies & high-volume hiring",
+      "icon": "Shield",
+      "color": "text-purple-400",
+      "bgColor": "bg-purple-400/10",
+      "features": [
+        "Unlimited job postings",
+        "Full database access",
+        "Priority job listings",
+        "Featured company profile",
+        "Direct chat & email",
+        "Advanced analytics & reports",
+        "AI recommendations",
+        "Dedicated account manager",
+        "24/7 VIP support"
+      ],
+      "buttonText": "Go Premium"
+    }
+  ]
+}
