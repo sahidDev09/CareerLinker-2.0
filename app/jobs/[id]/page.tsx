@@ -266,6 +266,9 @@ export default function JobDetailPage() {
       toast.success("Application submitted successfully!", {
         description: "The recruiter has been notified of your interest."
       });
+
+      // Trigger navbar credit update
+      window.dispatchEvent(new Event('credits-updated'));
     } catch (error) {
       console.error("Error applying for job:", error);
       toast.error("Failed to submit application. Please try again.");

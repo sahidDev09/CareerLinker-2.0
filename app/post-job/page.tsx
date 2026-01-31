@@ -284,6 +284,8 @@ function PostJobForm() {
         toast.success("Job posted successfully!");
       }
 
+      // Trigger navbar credit update
+      window.dispatchEvent(new Event('credits-updated'));
       router.push("/dashboard/employer/my-jobs");
     } catch (error: unknown) {
       console.error("Error posting job:", error);
