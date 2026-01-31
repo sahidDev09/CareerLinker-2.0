@@ -19,6 +19,8 @@ export const metadata: Metadata = {
 
 import SmoothScroll from "@/components/shared/SmoothScroll";
 
+import UserSync from "@/components/auth/UserSync";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -31,6 +33,7 @@ export default function RootLayout({
       <html lang="en">
         <body className={`${outfit.variable} font-sans antialiased`}>
           <SmoothScroll>
+            <UserSync />
             <div className="bg-gradient-overlay" />
             <div className="grid-background" />
             <Navbar />
