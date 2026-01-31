@@ -4,12 +4,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bookmark, Menu, X, Briefcase, Zap } from "lucide-react";
 import { SignInButton, SignUpButton, UserButton, SignedIn, SignedOut, useUser, useClerk } from "@clerk/nextjs";
-import { useState, useRef, useLayoutEffect, useEffect, Suspense } from "react";
+import { useState, useRef, useLayoutEffect, useEffect, Suspense, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import gsap from "gsap";
 import Image from "next/image";
 import RoleSelection from "@/components/shared/RoleSelection";
+import { createClient } from "@/lib/supabase/client";
+import pricingData from "@/data/pricing-plans.json";
+
 
 function AuthRedirectHandler() {
   const { user } = useUser();
@@ -41,6 +44,37 @@ export default function Navbar() {
   const { user } = useUser();
   const role = user?.publicMetadata?.role as "candidate" | "recruiter" | undefined;
   const actionButtonText = role === "candidate" ? "Apply Jobs" : "Post a Job";
+
+  const [credits, setCredits] = useState<string>("0");
+  const supabase = useMemo(() => createClient(), []);
+
+  useEffect(() => {
+    async function fetchProfile() {
+      if (!user || !role) return;
+      try {
+        const { data } = await supabase
+          .from("profiles")
+          .select("package")
+          .eq("id", user.id)
+          .single();
+        
+        const userPackage = data?.package || "Free";
+        const rolePlans = pricingData[role as keyof typeof pricingData];
+        const plan = rolePlans.find((p: { name: string; features: string[] }) => p.name.toLowerCase() === userPackage.toLowerCase());
+        
+        if (plan && plan.features && plan.features.length > 0) {
+
+          const creditFeature = plan.features[0];
+          const match = creditFeature.match(/(\d+|Unlimited)/i);
+          setCredits(match ? match[0] : "0");
+        }
+      } catch (err) {
+        console.error("Error fetching user package:", err);
+      }
+    }
+    fetchProfile();
+  }, [user, role, supabase]);
+
 
   const navLinks = [
     { name: "Find Jobs", href: "/jobs" },
@@ -148,7 +182,12 @@ export default function Navbar() {
                     <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center shadow-[0_0_10px_rgba(250,204,21,0.5)]">
                       <Zap size={10} className="text-black fill-black" />
                     </div>
-                    <span className="text-xs font-bold text-white/90">5 Credits</span>
+                    <span className="text-xs font-bold text-white/90">
+                      <span className="text-yellow-400">{credits}</span> Credits
+                    </span>
+
+
+
                   </div>
                   <Link 
                     href={role === "candidate" ? "/jobs" : "/post-job"}
@@ -286,7 +325,12 @@ export default function Navbar() {
                     <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
                       <Zap size={10} className="text-black fill-black" />
                     </div>
-                    <span className="text-xs font-bold text-white">5 Credits</span>
+                    <span className="text-xs font-bold text-white">
+                      <span className="text-yellow-400">{credits}</span> Credits
+                    </span>
+
+
+
                   </div>
                 </div>
                 <Link 
