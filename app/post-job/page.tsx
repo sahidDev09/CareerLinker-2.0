@@ -24,6 +24,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import RichTextEditor from "@/components/shared/RichTextEditor";
 import { useEffect, Suspense } from "react";
+import pricingData from "@/data/pricing-plans.json";
 
 export default function PostJobPage() {
   return (
@@ -48,6 +49,8 @@ function PostJobForm() {
   const [uploading, setUploading] = useState(false);
   const [skills, setSkills] = useState(["React", "Next.js", "TypeScript"]);
   const [newSkill, setNewSkill] = useState("");
+  const [jobPostingLimitReached, setJobPostingLimitReached] = useState(false);
+  const [remainingJobs, setRemainingJobs] = useState<number | null>(null);
   
   const [formData, setFormData] = useState({
     title: "",
@@ -146,6 +149,57 @@ function PostJobForm() {
     fetchJob();
   }, [jobId, user, supabase, router]);
 
+  useEffect(() => {
+    async function checkJobLimit() {
+      if (!user || jobId) return;
+
+      try {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("package")
+          .eq("id", user.id)
+          .single();
+        
+        const userPackage = profile?.package || "Free";
+        const role = user.publicMetadata.role as string;
+        if (role !== "recruiter") return;
+
+        const rolePlans = pricingData.recruiter;
+        const plan = rolePlans.find(p => p.name.toLowerCase() === userPackage.toLowerCase());
+
+        if (plan) {
+          const creditFeature = plan.features[0];
+          const match = creditFeature.match(/(\d+|Unlimited)/i);
+          const limitStr = match ? match[0] : "0";
+
+          if (limitStr.toLowerCase() !== "unlimited") {
+            const limit = parseInt(limitStr);
+            const { count } = await supabase
+              .from("jobs")
+              .select("*", { count: "exact", head: true })
+              .eq("recruiter_id", user.id)
+              .eq("status", "active");
+            
+            const activeJobs = count || 0;
+            setRemainingJobs(Math.max(0, limit - activeJobs));
+            if (activeJobs >= limit) {
+              setJobPostingLimitReached(true);
+              toast.error("You have reached your job posting limit. Redirecting to pricing...");
+              setTimeout(() => {
+                router.push("/pricing");
+              }, 2000);
+            }
+          } else {
+            setRemainingJobs(Infinity);
+          }
+        }
+      } catch (err) {
+        console.error("Error checking job limit:", err);
+      }
+    }
+    checkJobLimit();
+  }, [user, supabase, jobId, router]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
@@ -155,6 +209,12 @@ function PostJobForm() {
 
     if (!formData.title || !formData.company_name || !formData.salary) {
       toast.error("Please fill in all required fields (Title, Company Name, Salary)");
+      return;
+    }
+
+    if (jobPostingLimitReached && !jobId) {
+      toast.error("You have reached your job posting limit. Please upgrade your plan to post more jobs.");
+      router.push("/pricing");
       return;
     }
 
@@ -249,6 +309,15 @@ function PostJobForm() {
               {jobId ? "Edit" : "Post a"} <span className="gradient-text">{jobId ? "Job Post" : "New Job"}</span>
             </h1>
             <p className="text-slate-400 mt-2">{jobId ? "Update your job posting information." : "Reach thousands of talented professionals today."}</p>
+            {!jobId && remainingJobs !== null && remainingJobs !== Infinity && (
+              <div className="mt-4 inline-flex items-center px-4 py-2 bg-[#ff4d94]/10 border border-[#ff4d94]/20 rounded-xl">
+                <span className="text-sm font-bold text-[#ff4d94]">
+                  {remainingJobs > 0 
+                    ? `You can post ${remainingJobs} more job${remainingJobs === 1 ? "" : "s"} with your current plan.`
+                    : "You have reached your job posting limit."}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -490,8 +559,8 @@ function PostJobForm() {
             </button>
             <button 
               type="submit"
-              disabled={loading}
-              className="w-full sm:w-auto px-12 py-4 gradient-bg text-white rounded-2xl font-bold shadow-[0_10px_20px_-5px_rgba(255,77,148,0.3)] hover:shadow-[0_15px_30px_-5px_rgba(255,77,148,0.4)] transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center disabled:opacity-50 disabled:hover:translate-y-0"
+              disabled={loading || (jobPostingLimitReached && !jobId)}
+              className="w-full sm:w-auto px-12 py-4 gradient-bg text-white rounded-2xl font-bold shadow-[0_10px_20px_-5px_rgba(255,77,148,0.3)] hover:shadow-[0_15px_30px_-5px_rgba(255,77,148,0.4)] transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center disabled:opacity-50 disabled:hover:translate-y-0 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>

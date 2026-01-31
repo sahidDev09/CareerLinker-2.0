@@ -24,6 +24,7 @@ import Image from "next/image";
 import { FadeIn } from "@/components/shared/Motion";
 import DOMPurify from 'dompurify';
 import { formatSalary, formatRelativeTime } from "@/lib/utils";
+import pricingData from "@/data/pricing-plans.json";
 
 interface AppliedProfile {
   user_id: string;
@@ -76,6 +77,8 @@ export default function JobDetailPage() {
   const [uploadingResume, setUploadingResume] = useState(false);
   const [isApplied, setIsApplied] = useState(false);
   const [selectedResumeUrl, setSelectedResumeUrl] = useState<string | null>(null);
+  const [remainingCredits, setRemainingCredits] = useState<number | null>(null);
+  const [canApply, setCanApply] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
@@ -107,6 +110,45 @@ export default function JobDetailPage() {
           // Check application status from job details
           if (jobData.applied_profiles?.some((p: AppliedProfile) => p.user_id === user.id)) {
             setIsApplied(true);
+          }
+
+          // Fetch user package and total applications to check credits
+          const userPackage = profileData?.package || "Free";
+          const role = user.publicMetadata?.role as string;
+          
+          if (role === "candidate") {
+            const rolePlans = pricingData.candidate;
+            const plan = rolePlans.find(p => p.name.toLowerCase() === userPackage.toLowerCase());
+            
+            if (plan) {
+              const creditFeature = plan.features[0];
+              const match = creditFeature.match(/(\d+|Unlimited)/i);
+              const limitStr = match ? match[0] : "0";
+
+              if (limitStr.toLowerCase() !== "unlimited") {
+                const limit = parseInt(limitStr);
+                
+                // Fetch all applied jobs for this user
+                const { data: allJobsData } = await supabase
+                  .from('jobs')
+                  .select('applied_profiles')
+                  .not('applied_profiles', 'is', null);
+                
+                const appliedCount = (allJobsData || []).filter(j => 
+                  Array.isArray(j.applied_profiles) && 
+                  j.applied_profiles.some((p: AppliedProfile) => p.user_id === user.id)
+                ).length;
+
+                const remaining = Math.max(0, limit - appliedCount);
+                setRemainingCredits(remaining);
+                if (remaining <= 0) {
+                  setCanApply(false);
+                }
+              } else {
+                setRemainingCredits(Infinity);
+                setCanApply(true);
+              }
+            }
           }
         }
       } catch (error) {
@@ -164,6 +206,14 @@ export default function JobDetailPage() {
       toast.error("Please provide a resume to apply", {
         description: "Upload a new one or fill your profile."
       });
+      return;
+    }
+
+    if (!canApply) {
+      toast.error("You have reached your application limit for this plan.", {
+        description: "Please upgrade your plan to apply for more jobs."
+      });
+      router.push("/pricing");
       return;
     }
 
@@ -404,10 +454,17 @@ export default function JobDetailPage() {
             <div id="apply-section" className="sticky top-32 space-y-6">
               <FadeIn direction="left">
                 <div className="glass rounded-[2.5rem] p-8 space-y-8 border-t border-white/20">
-                  <div className="space-y-2">
-                    <h3 className="text-2xl font-bold">Easy Apply</h3>
-                    <p className="text-slate-400 text-sm">Send your application directly to the hiring team.</p>
-                  </div>
+                    <div className="space-y-2">
+                      <h3 className="text-2xl font-bold">Easy Apply</h3>
+                      <p className="text-slate-400 text-sm">Send your application directly to the hiring team.</p>
+                      {!isApplied && remainingCredits !== null && remainingCredits !== Infinity && (
+                        <div className="mt-2 text-xs font-bold text-[#ff4d94] bg-[#ff4d94]/10 py-1.5 px-3 rounded-lg inline-block">
+                          {remainingCredits > 0 
+                            ? `${remainingCredits} applications left` 
+                            : "Limit reached - Upgrade needed"}
+                        </div>
+                      )}
+                    </div>
 
                   {isApplied ? (
                     <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-center space-y-4">

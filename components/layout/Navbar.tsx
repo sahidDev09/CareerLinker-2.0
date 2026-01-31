@@ -13,6 +13,13 @@ import RoleSelection from "@/components/shared/RoleSelection";
 import { createClient } from "@/lib/supabase/client";
 import pricingData from "@/data/pricing-plans.json";
 
+interface AppliedProfile {
+  user_id: string;
+  user_name: string;
+  user_email: string;
+  status: string;
+  applied_at: string;
+}
 
 function AuthRedirectHandler() {
   const { user } = useUser();
@@ -52,24 +59,55 @@ export default function Navbar() {
     async function fetchProfile() {
       if (!user || !role) return;
       try {
-        const { data } = await supabase
+        const { data: profileData } = await supabase
           .from("profiles")
           .select("package")
           .eq("id", user.id)
           .single();
         
-        const userPackage = data?.package || "Free";
+        const userPackage = profileData?.package || "Free";
         const rolePlans = pricingData[role as keyof typeof pricingData];
         const plan = rolePlans.find((p: { name: string; features: string[] }) => p.name.toLowerCase() === userPackage.toLowerCase());
         
         if (plan && plan.features && plan.features.length > 0) {
-
           const creditFeature = plan.features[0];
           const match = creditFeature.match(/(\d+|Unlimited)/i);
-          setCredits(match ? match[0] : "0");
+          const totalLimit = match ? match[0] : "0";
+
+          if (role === "recruiter" && totalLimit.toLowerCase() !== "unlimited") {
+            const limit = parseInt(totalLimit);
+            const { count, error } = await supabase
+              .from("jobs")
+              .select("*", { count: 'exact', head: true })
+              .eq("recruiter_id", user.id)
+              .eq("status", "active");
+            
+            if (error) throw error;
+            const activeJobs = count || 0;
+            setCredits(Math.max(0, limit - activeJobs).toString());
+          } else if (role === "candidate" && totalLimit.toLowerCase() !== "unlimited") {
+            const limit = parseInt(totalLimit);
+            
+            // Fetch all jobs that have applications and filter for user_id in client
+            const { data: allJobsData, error: jobsError } = await supabase
+              .from('jobs')
+              .select('applied_profiles')
+              .not('applied_profiles', 'is', null);
+            
+            if (jobsError) throw jobsError;
+            
+            const appliedCount = (allJobsData || []).filter(job => 
+              Array.isArray(job.applied_profiles) && 
+              job.applied_profiles.some((p: AppliedProfile) => p.user_id === user.id)
+            ).length;
+
+            setCredits(Math.max(0, limit - appliedCount).toString());
+          } else {
+            setCredits(totalLimit);
+          }
         }
       } catch (err) {
-        console.error("Error fetching user package:", err);
+        console.error("Error fetching user package or jobs:", err);
       }
     }
     fetchProfile();
@@ -190,7 +228,7 @@ export default function Navbar() {
 
                   </div>
                   <Link 
-                    href={role === "candidate" ? "/jobs" : "/post-job"}
+                    href={role === "recruiter" && credits === "0" ? "/pricing" : (role === "candidate" ? "/jobs" : "/post-job")}
                     className="px-6 py-2.5 bg-[#ff4d94] text-white rounded-full text-sm font-bold shadow-[0_10px_20px_-5px_rgba(255,77,148,0.3)] hover:shadow-[0_15px_30px_-5px_rgba(255,77,148,0.4)] transition-all hover:-translate-y-1 active:scale-95"
                   >
                     {actionButtonText}
@@ -334,7 +372,7 @@ export default function Navbar() {
                   </div>
                 </div>
                 <Link 
-                  href={role === "candidate" ? "/jobs" : "/post-job"}
+                  href={role === "recruiter" && credits === "0" ? "/pricing" : (role === "candidate" ? "/jobs" : "/post-job")}
                   className="w-full inline-block text-center py-4 bg-[#ff4d94] text-white rounded-xl font-bold shadow-md active:scale-[0.98] transition-transform"
                 >
                   {actionButtonText}
