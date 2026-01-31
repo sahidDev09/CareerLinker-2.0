@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 import { Check, Zap, Shield, Star, Crown, Rocket, ZapIcon, CreditCard, Mail, Bell, Headphones, Users, LayoutDashboard, BarChart3, MessageSquare, Bot, UserCheck } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
+import { useEffect, useState, useMemo } from "react";
 
 interface PricingPlan {
   name: string;
@@ -134,6 +136,27 @@ const recruiterPlans: PricingPlan[] = [
 export default function PricingPage() {
   const { user, isLoaded } = useUser();
   const role = (user?.publicMetadata?.role as "candidate" | "recruiter") || "candidate";
+  const [userPackage, setUserPackage] = useState<string | null>(null);
+  const supabase = useMemo(() => createClient(), []);
+
+  useEffect(() => {
+    async function fetchUserProfile() {
+      if (!user) return;
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("package")
+        .eq("id", user.id)
+        .single();
+      
+      if (data && !error) {
+        setUserPackage(data.package);
+      }
+    }
+    
+    if (isLoaded && user) {
+      fetchUserProfile();
+    }
+  }, [user, isLoaded, supabase]);
 
   const plans = role === "recruiter" ? recruiterPlans : candidatePlans;
 
@@ -180,7 +203,12 @@ export default function PricingPage() {
         {/* Pricing Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {plans.map((plan, index) => (
-            <PricingCard key={plan.name} plan={plan} index={index} />
+            <PricingCard 
+              key={plan.name} 
+              plan={plan} 
+              index={index} 
+              isCurrent={userPackage?.toLowerCase() === plan.name.toLowerCase()}
+            />
           ))}
         </div>
 
@@ -200,7 +228,7 @@ export default function PricingPage() {
   );
 }
 
-function PricingCard({ plan, index }: { plan: PricingPlan; index: number }) {
+function PricingCard({ plan, index, isCurrent }: { plan: PricingPlan; index: number; isCurrent?: boolean }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -208,8 +236,9 @@ function PricingCard({ plan, index }: { plan: PricingPlan; index: number }) {
       transition={{ duration: 0.5, delay: index * 0.1 }}
       whileHover={{ y: -10 }}
       className={cn(
-        "relative p-8 rounded-[2.5rem] flex flex-col h-full transition-all duration-300 border border-white/5 bg-white/5 hover:border-white/20 shadow-2xl",
-        plan.isPopular && "ring-2 ring-[#ff4d94]/50 scale-105 md:scale-110 z-20 bg-white/[0.07]"
+        "relative p-8 rounded-[2.5rem] flex flex-col h-full transition-all duration-300 border border-white/5 bg-white/5 hover:border-white/20 shadow-2xl backdrop-blur-md",
+        index === 1 ? "md:scale-110 z-20 bg-white/[0.07] ring-2 ring-[#ff4d94]/30" : "md:scale-95 z-10",
+        isCurrent && "border-[#ff4d94]/30"
       )}
     >
       {plan.isPopular && (
@@ -250,14 +279,17 @@ function PricingCard({ plan, index }: { plan: PricingPlan; index: number }) {
 
       {/* Action Button */}
       <button
+        disabled={isCurrent}
         className={cn(
           "w-full py-4 rounded-2xl font-bold transition-all duration-300 active:scale-95 shadow-lg",
-          plan.isPopular
-            ? "bg-[#ff4d94] text-white hover:bg-[#ff3385] shadow-pink-500/20 hover:shadow-pink-500/30"
-            : "bg-white/5 text-white hover:bg-white/10 border border-white/10"
+          isCurrent 
+            ? "bg-[#FF4D94] text-white cursor-not-allowed border border-emerald-500/20"
+            : plan.isPopular
+              ? "bg-white/5 text-white hover:bg-white/10 border border-white/10"
+              : "bg-white/5 text-white hover:bg-white/10 border border-white/10"
         )}
       >
-        {plan.buttonText}
+        {isCurrent ? "Current Plan" : plan.buttonText}
       </button>
 
       {/* Footer Decoration */}
