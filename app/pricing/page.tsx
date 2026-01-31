@@ -2,11 +2,13 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Check, Zap, Shield, Star, Crown, Rocket, ZapIcon, CreditCard, Mail, Bell, Headphones, Users, LayoutDashboard, BarChart3, MessageSquare, Bot, UserCheck } from "lucide-react";
+import { Check, Zap, Shield, Crown, Rocket, ZapIcon, BarChart3, Users } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import pricingData from "@/data/pricing-plans.json";
 
@@ -34,6 +36,7 @@ const ICON_MAP: Record<string, React.ReactNode> = {
 
 export default function PricingPage() {
   const { user, isLoaded } = useUser();
+  const router = useRouter();
   const role = (user?.publicMetadata?.role as "candidate" | "recruiter") || "candidate";
   const [userPackage, setUserPackage] = useState<string | null>(null);
   const supabase = useMemo(() => createClient(), []);
@@ -107,6 +110,33 @@ export default function PricingPage() {
               plan={plan} 
               index={index} 
               isCurrent={userPackage?.toLowerCase() === plan.name.toLowerCase()}
+              onSelect={async () => {
+                if (plan.price === "$0") {
+                  try {
+                    const supabase = createClient();
+                    const { error } = await supabase
+                      .from("profiles")
+                      .update({ package: plan.name.toLowerCase() })
+                      .eq("id", user?.id);
+                    
+                    if (error) throw error;
+                    
+                    toast.success(`Successfully activated ${plan.name} plan!`);
+                    router.push(`/dashboard/${role}`);
+                  } catch (error) {
+                    console.error("Error activating free plan:", error);
+                    toast.error("Failed to activate plan. Please try again.");
+                  }
+                  return;
+                }
+
+                const searchParams = new URLSearchParams({
+                  plan: plan.name,
+                  price: plan.price,
+                  role: role
+                });
+                router.push(`/pricing/payment?${searchParams.toString()}`);
+              }}
             />
           ))}
         </div>
@@ -127,7 +157,17 @@ export default function PricingPage() {
   );
 }
 
-function PricingCard({ plan, index, isCurrent }: { plan: PricingPlan; index: number; isCurrent?: boolean }) {
+function PricingCard({ 
+  plan, 
+  index, 
+  isCurrent,
+  onSelect 
+}: { 
+  plan: PricingPlan; 
+  index: number; 
+  isCurrent?: boolean;
+  onSelect: () => void;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -179,6 +219,7 @@ function PricingCard({ plan, index, isCurrent }: { plan: PricingPlan; index: num
       {/* Action Button */}
       <button
         disabled={isCurrent}
+        onClick={onSelect}
         className={cn(
           "w-full py-4 rounded-2xl font-bold transition-all duration-300 active:scale-95 shadow-lg",
           isCurrent 
