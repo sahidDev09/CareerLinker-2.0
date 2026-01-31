@@ -45,6 +45,7 @@ export default function Navbar() {
   const navLinks = [
     { name: "Find Jobs", href: "/jobs" },
     { name: "Companies", href: "/companies" },
+    { name: "Pricing", href: "/pricing" },
     { name: "Dashboard", href: "/dashboard" },
   ];
 
