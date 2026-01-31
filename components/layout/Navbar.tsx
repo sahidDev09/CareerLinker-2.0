@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bookmark, Menu, X, Briefcase } from "lucide-react";
+import { Bookmark, Menu, X, Briefcase, Zap } from "lucide-react";
 import { SignInButton, SignUpButton, UserButton, SignedIn, SignedOut, useUser, useClerk } from "@clerk/nextjs";
 import { useState, useRef, useLayoutEffect, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
@@ -143,12 +143,20 @@ export default function Navbar() {
             </SignedOut>
             <SignedIn>
               <div className="flex items-center space-x-6">
-                <Link 
-                  href={role === "candidate" ? "/jobs" : "/post-job"}
-                  className="px-6 py-2.5 bg-[#ff4d94] text-white rounded-full text-sm font-bold shadow-[0_10px_20px_-5px_rgba(255,77,148,0.3)] hover:shadow-[0_15px_30px_-5px_rgba(255,77,148,0.4)] transition-all hover:-translate-y-1 active:scale-95"
-                >
-                  {actionButtonText}
-                </Link>
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-1.5 px-3 py-1.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-full cursor-help group transition-all hover:bg-white/20" title="Available Credits">
+                    <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center shadow-[0_0_10px_rgba(250,204,21,0.5)]">
+                      <Zap size={10} className="text-black fill-black" />
+                    </div>
+                    <span className="text-xs font-bold text-white/90">5 Credits</span>
+                  </div>
+                  <Link 
+                    href={role === "candidate" ? "/jobs" : "/post-job"}
+                    className="px-6 py-2.5 bg-[#ff4d94] text-white rounded-full text-sm font-bold shadow-[0_10px_20px_-5px_rgba(255,77,148,0.3)] hover:shadow-[0_15px_30px_-5px_rgba(255,77,148,0.4)] transition-all hover:-translate-y-1 active:scale-95"
+                  >
+                    {actionButtonText}
+                  </Link>
+                </div>
                 <UserButton 
                   appearance={{
                     elements: {
@@ -271,6 +279,15 @@ export default function Navbar() {
                       <UserButton.Action label="manageAccount" />
                     </UserButton.MenuItems>
                   </UserButton>
+                </div>
+                <div className="flex items-center justify-between px-4 py-3 bg-white/5 border border-white/10 rounded-xl mb-4">
+                  <span className="text-white/60 text-sm">Available Credits</span>
+                  <div className="flex items-center space-x-1.5 px-3 py-1 bg-[#ff4d94]/20 border border-[#ff4d94]/30 rounded-full">
+                    <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center">
+                      <Zap size={10} className="text-black fill-black" />
+                    </div>
+                    <span className="text-xs font-bold text-white">5 Credits</span>
+                  </div>
                 </div>
                 <Link 
                   href={role === "candidate" ? "/jobs" : "/post-job"}
